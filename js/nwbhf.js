@@ -14,17 +14,10 @@
      Hockey.teams = new Array();
 
      var playersLayer = new Kinetic.Layer( {id: 'players'} );
-     for(var i = 0; i < 2; ++i) {
-	 var team = { 
-	     id: i+1,
-	     players : new Array(),
-	     layer: playersLayer 
-	 };
-	 for(var j = 0; j <= 5; ++j) {
-	     team.players.push(new Player(Hockey, team, j));
-	 }
-	 Hockey.teams.push(team);
+     for(var i = 1; i <= 2; ++i) {
+        Hockey.teams.push(new Team(Hockey, i, playersLayer));
      }
+
      Hockey.stage.add(playersLayer);
      
 })();
