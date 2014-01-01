@@ -66,6 +66,18 @@ Player.prototype.render = function() {
 	    strokeWidth: 2,
 	}
     );
+
+    if(this.position.selectKey != null) {
+        this.player.keyHeader = new Kinetic.Text({
+            fontSize: 20,
+            x:this.hockey.rink.offset.x + this.position.boundaries.x[0],
+            y:this.hockey.rink.offset.y - 25,
+            text: this.position.selectKey,
+            fill: 'black'
+        });
+        this.layer.add(this.player.keyHeader);
+    }
+
     this.layer.add(this.player.boundary);
     this.hockey.rink.layer.add(this.player.boundary);
     this.layer.add(this.player.group);
@@ -120,11 +132,11 @@ Player.prototype.advance = function(x, y) {
 
 
 Player.CONSTANTS = {
-    positions: [ {positionId: 1, abbreviation: 'LW', name: 'Left Wing', boundaries : { x: [25, 25], y: [20, 250]}, hasStick: true }, 
-		 {positionId: 2, abbreviation: 'RW', name: 'Right Wing', boundaries : { x: [196, 196], y: [20, 250]}, hasStick: true },
-		 {positionId: 3, abbreviation: 'C', name: 'Center', boundaries: { x:[110, 110], y:[65, 250]}, hasStick: true},
-		 {positionId: 4, abbreviation: 'LD', name: 'Left Defenseman', boundaries: { x:[67, 67], y:[280, 500]}, hasStick: true },
-		 {positionId: 5, abbreviation: 'RD', name: 'Right Defenseman', boundaries: { x:[154, 154], y:[280, 500]}, hasStick: true },
+    positions: [ {positionId: 1, abbreviation: 'LW', name: 'Left Wing', boundaries : { x: [25, 25], y: [20, 250]}, hasStick: true, selectKey:'A' },
+		 {positionId: 2, abbreviation: 'RW', name: 'Right Wing', boundaries : { x: [196, 196], y: [20, 250]}, hasStick: true, selectKey: 'G' },
+		 {positionId: 3, abbreviation: 'C', name: 'Center', boundaries: { x:[110, 110], y:[65, 250]}, hasStick: true, selectKey: 'D'},
+		 {positionId: 4, abbreviation: 'LD', name: 'Left Defenseman', boundaries: { x:[67, 67], y:[280, 500]}, hasStick: true, selectKey:'S' },
+		 {positionId: 5, abbreviation: 'RD', name: 'Right Defenseman', boundaries: { x:[154, 154], y:[280, 500]}, hasStick: true, selectKey:'F' },
 		 {positionId: 6, abbreviation: 'G', name: 'Goalie', boundaries: {x:[90,130], y:[485, 485]}, hasStick: false }
 	       ]
 };
