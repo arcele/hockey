@@ -11,7 +11,7 @@ function Player(hockey, team, positionId) {
 	    x: this.startingPoint('x'),
 	    y: this.startingPoint('y')
     };
-    this.stickAngle = Math.random() * 360; //Math.PI * 2;
+    this.stickAngle = Math.random() * Math.PI * 2;
     this.render();
 }
 
@@ -30,7 +30,7 @@ Player.prototype.render = function() {
     this.player.group = new Kinetic.Group({
         x: this.location.x + this.hockey.rink.offset.x,
         y: this.location.y + this.hockey.rink.offset.y,
-        rotationDeg: this.stickAngle
+        rotation: this.stickAngle
     });
 
     this.player.body = new Kinetic.Circle({
