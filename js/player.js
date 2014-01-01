@@ -152,7 +152,7 @@ function PlayerSelector(player) {
             fill: '#ccc'
         });
         _this = this;
-        this.wrapper.on('mouseover', function() {
+        this.wrapper.on('mouseover touchstart', function() {
             _this.player.team.resetSelectors();
             this.setFill('red');
             _this.player.layer.draw();
