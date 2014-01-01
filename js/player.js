@@ -40,13 +40,15 @@ Player.prototype.render = function() {
 	});
     this.player.group.add(this.player.body);
 
-    var stickStart = this.bodyRadius / 2 + this.stickReach;
-    this.player.stick = new Kinetic.Line({
-        points: [[stickStart, 0],[stickStart + this.stickLength, 0]],
-        stroke: '#452200',
-        strokeWidth: 3
-    });
-    this.player.group.add(this.player.stick);
+    if(this.position.hasStick) {
+        var stickStart = this.bodyRadius / 2 + this.stickReach;
+        this.player.stick = new Kinetic.Line({
+            points: [[stickStart, 0],[stickStart + this.stickLength, 0]],
+            stroke: '#452200',
+            strokeWidth: 3
+        });
+        this.player.group.add(this.player.stick);
+    }
 
     this.player.boundary = new Kinetic.Line({
 	// assumes all skaters can only go straight, you know, like in bubble hockey
