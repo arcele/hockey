@@ -67,16 +67,9 @@ Player.prototype.render = function() {
 	}
     );
 
-    if(this.position.selectKey != null) {
-        this.player.keyHeader = new Kinetic.Text({
-            fontSize: 20,
-            x:this.hockey.rink.offset.x + this.position.boundaries.x[0],
-            y:this.hockey.rink.offset.y - 25,
-            text: this.position.selectKey,
-            fill: 'black'
-        });
-        this.layer.add(this.player.keyHeader);
-    }
+    this.player.playerSelector = new PlayerSelector(this);
+
+
 
     this.layer.add(this.player.boundary);
     this.hockey.rink.layer.add(this.player.boundary);
@@ -139,4 +132,44 @@ Player.CONSTANTS = {
 		 {positionId: 5, abbreviation: 'RD', name: 'Right Defenseman', boundaries: { x:[154, 154], y:[280, 500]}, hasStick: true, selectKey:'F' },
 		 {positionId: 6, abbreviation: 'G', name: 'Goalie', boundaries: {x:[90,130], y:[485, 485]}, hasStick: false }
 	       ]
+};
+
+
+function PlayerSelector(player) {
+    this.player = player;
+    this.hockey = player.hockey;
+    this.selected = false;
+    if(this.player.position.selectKey != null) {
+        this.group = new Kinetic.Group({
+            x: this.hockey.rink.offset.x + this.player.position.boundaries.x[0],
+            y: this.hockey.rink.offset.y - 20
+        });
+
+        this.wrapper = new Kinetic.Circle({
+            radius: 15,
+            stroke: '#666',
+            strokeWidth:1,
+            fill: '#ccc'
+        });
+        _this = this;
+        this.wrapper.on('mouseover', function() {
+            _this.player.team.resetSelectors();
+            this.setFill('red');
+            _this.player.layer.draw();
+        });
+
+
+        this.group.add(this.wrapper);
+
+        this.character = new Kinetic.Text({
+            fontSize: 20,
+            x: -7,
+            y: -10,
+            text: this.player.position.selectKey,
+            fill: 'black'
+        });
+        this.group.add(this.character);
+        this.player.layer.add(this.group);
+    }
+
 };
