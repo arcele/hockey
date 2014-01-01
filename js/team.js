@@ -9,6 +9,7 @@ function Team(hockey, id, playersLayer) {
 
 Team.prototype.resetSelectors = function() {
     for(var i = 0; i < this.players.length-1; i++) {
+        this.players[i].player.selected = false;
         this.players[i].player.playerSelector.wrapper.setFill("#ccc");
     }
     this.layer.draw();

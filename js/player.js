@@ -12,6 +12,7 @@ function Player(hockey, team, positionId) {
 	    y: this.startingPoint('y')
     };
     this.stickAngle = Math.random() * Math.PI * 2;
+    this.selected = false;
     this.render();
 }
 
@@ -123,6 +124,12 @@ Player.prototype.advance = function(x, y) {
 
 };
 
+Player.prototype.select = function() {
+    this.team.resetSelectors();
+    this.player.playerSelector.wrapper.setFill('red');
+    this.layer.draw();
+    this.selected = true;
+};
 
 Player.CONSTANTS = {
     positions: [ {positionId: 1, abbreviation: 'LW', name: 'Left Wing', boundaries : { x: [25, 25], y: [20, 250]}, hasStick: true, selectKey:'A' },
@@ -138,7 +145,6 @@ Player.CONSTANTS = {
 function PlayerSelector(player) {
     this.player = player;
     this.hockey = player.hockey;
-    this.selected = false;
     if(this.player.position.selectKey != null) {
         this.group = new Kinetic.Group({
             x: this.hockey.rink.offset.x + this.player.position.boundaries.x[0],
@@ -151,11 +157,9 @@ function PlayerSelector(player) {
             strokeWidth:1,
             fill: '#ccc'
         });
-        _this = this;
+        var _this = this;
         this.wrapper.on('mouseover touchstart', function() {
-            _this.player.team.resetSelectors();
-            this.setFill('red');
-            _this.player.layer.draw();
+            _this.player.select();
         });
 
 
@@ -171,5 +175,4 @@ function PlayerSelector(player) {
         this.group.add(this.character);
         this.player.layer.add(this.group);
     }
-
 };
