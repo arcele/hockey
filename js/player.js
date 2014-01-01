@@ -8,10 +8,10 @@ function Player(hockey, team, positionId) {
     this.speed = 5;
     this.layer = team.layer;
     this.location = {
-	x: this.startingPoint('x'),
-	y: this.startingPoint('y')
+	    x: this.startingPoint('x'),
+	    y: this.startingPoint('y')
     };
-    this.stickAngle = Math.random() * Math.PI * 2;
+    this.stickAngle = Math.random() * 360; //Math.PI * 2;
     this.render();
 }
 
@@ -20,52 +20,45 @@ Player.prototype.startingPoint = function(axis) {
     var random = Math.random() * Math.abs(this.position.boundaries[axis][1] - this.position.boundaries[axis][0]);
     var position = random + this.position.boundaries[axis][0];
     if(this.team.id > 1) {
-	position = this.hockey.rink.size[axis] - Math.min(this.position.boundaries[axis][1], this.position.boundaries[axis][0]) - random;
+    	position = this.hockey.rink.size[axis] - Math.min(this.position.boundaries[axis][1], this.position.boundaries[axis][0]) - random;
     }
     return position;
-}
+};
 
 Player.prototype.render = function() {
     this.player = {};
-    this.player.body = new Kinetic.Circle( 
-	{
-	    x: this.location.x + this.hockey.rink.offset.x,
-	    y: this.location.y + this.hockey.rink.offset.y,
+    this.player.group = new Kinetic.Group({
+        x: this.location.x + this.hockey.rink.offset.x,
+        y: this.location.y + this.hockey.rink.offset.y,
+        rotationDeg: this.stickAngle
+    });
+
+    this.player.body = new Kinetic.Circle({
 	    radius: this.bodyRadius,
 	    stroke: '#000',
 	    fill: (this.team.id == 1)? '#F47940': '#E13A3E'
-	}
-    );
-    var stickStartX = (this.hockey.rink.offset.x + this.location.x) + (this.bodyRadius/2 + this.stickReach) * Math.sin(Math.PI /2 - this.stickAngle);
-    var stickFinishX = (this.hockey.rink.offset.x + this.location.x) + (this.bodyRadius/2 + this.stickReach + this.stickLength) * Math.sin(Math.PI /2 - this.stickAngle);
+	});
+    this.player.group.add(this.player.body);
 
-    var stickStartY = (this.hockey.rink.offset.y + this.location.y) + (this.bodyRadius/2 + this.stickReach) * Math.cos(Math.PI /2 - this.stickAngle);
-    var stickFinishY = (this.hockey.rink.offset.y + this.location.y) + (this.bodyRadius/2 + this.stickReach + this.stickLength) * Math.cos(Math.PI /2 - this.stickAngle);
+    var stickStart = this.bodyRadius / 2 + this.stickReach;
+    this.player.stick = new Kinetic.Line({
+        points: [[stickStart, 0],[stickStart + this.stickLength, 0]],
+        stroke: '#452200',
+        strokeWidth: 3
+    });
+    this.player.group.add(this.player.stick);
 
-    this.stickLocation = [[stickStartX, stickStartY], [stickFinishX, stickFinishY]];
-
-    this.player.stick = new Kinetic.Line(
-	{
-	    points: this.stickLocation,
-	    stroke: '#452200',
-	    strokeWidth: 3
-	    
-	}
-    );
-
-    this.player.boundary = new Kinetic.Line(
+    this.player.boundary = new Kinetic.Line({
 	// assumes all skaters can only go straight, you know, like in bubble hockey
-	{
 	    points: this.team.id == 1? [
-		[this.hockey.rink.offset.x + this.position.boundaries.x[0], this.hockey.rink.offset.y + this.position.boundaries.y[0]],
-		[this.hockey.rink.offset.x + this.position.boundaries.x[1], this.hockey.rink.offset.y + this.position.boundaries.y[1]]
+		    [this.hockey.rink.offset.x + this.position.boundaries.x[0], this.hockey.rink.offset.y + this.position.boundaries.y[0]],
+		    [this.hockey.rink.offset.x + this.position.boundaries.x[1], this.hockey.rink.offset.y + this.position.boundaries.y[1]]
 	    ] : [
-		[this.hockey.rink.offset.x + this.hockey.rink.size.x - Math.min(this.position.boundaries.x[1], this.position.boundaries.x[0]),
-		 this.hockey.rink.offset.y + this.hockey.rink.size.y - Math.min(this.position.boundaries.y[1], this.position.boundaries.y[0])],
-		[this.hockey.rink.offset.x + this.hockey.rink.size.x - Math.max(this.position.boundaries.x[1], this.position.boundaries.x[0]),
-		 this.hockey.rink.offset.y + this.hockey.rink.size.y - Math.max(this.position.boundaries.y[1], this.position.boundaries.y[0])]
+		    [this.hockey.rink.offset.x + this.hockey.rink.size.x - Math.min(this.position.boundaries.x[1], this.position.boundaries.x[0]),
+		    this.hockey.rink.offset.y + this.hockey.rink.size.y - Math.min(this.position.boundaries.y[1], this.position.boundaries.y[0])],
+		    [this.hockey.rink.offset.x + this.hockey.rink.size.x - Math.max(this.position.boundaries.x[1], this.position.boundaries.x[0]),
+		    this.hockey.rink.offset.y + this.hockey.rink.size.y - Math.max(this.position.boundaries.y[1], this.position.boundaries.y[0])]
 	    ],
-
 	    stroke: '#333',
 	    opacity: '.3',
 	    strokeWidth: 2,
@@ -73,10 +66,7 @@ Player.prototype.render = function() {
     );
     this.layer.add(this.player.boundary);
     this.hockey.rink.layer.add(this.player.boundary);
-    this.layer.add(this.player.body);
-    if(this.position.hasStick) {
-	this.layer.add(this.player.stick);
-    }
+    this.layer.add(this.player.group);
 };
 
 Player.prototype.move = function(x,y) {
