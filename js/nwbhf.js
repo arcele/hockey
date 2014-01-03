@@ -9,10 +9,8 @@
 
     Hockey.rink = new Rink(Hockey.stage);
     Hockey.puck = new Puck(Hockey);
-    Hockey.mouseMovements = new Array();
-
-    Hockey.teams = new Array();
-
+    Hockey.mouseMovements = [];
+    Hockey.teams = [];
     var playersLayer = new Kinetic.Layer( {id: 'players'} );
     for(var i = 1; i <= 2; ++i) {
     Hockey.teams.push(new Team(Hockey, i, playersLayer));
