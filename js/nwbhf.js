@@ -19,10 +19,10 @@
     Hockey.stage.add(playersLayer);
 
     var _hockey = Hockey;
-    Hockey.stage.on('mousemove', function() {
-        var mousePos = this.getPointerPosition();
-        var x = mousePos.x;
-        var y = mousePos.y;
+    Hockey.stage.on('mousemove touchmove', function(event) {
+        var eventPosition = this.getPointerPosition();
+        var x = eventPosition.x;
+        var y = eventPosition.y;
         _hockey.mouseMovements.push({x: x, y: y});
         if(_hockey.mouseMovements.length > 10) {
             var dump = _hockey.mouseMovements.shift();
