@@ -68,7 +68,9 @@ Player.prototype.render = function() {
 	}
     );
 
-    this.player.playerSelector = new PlayerSelector(this);
+    if(this.team.id == 1) {
+        this.player.playerSelector = new PlayerSelector(this);
+    }
 
 
 
@@ -79,49 +81,43 @@ Player.prototype.render = function() {
 
 Player.prototype.move = function(x,y) {
     var _this = this;
+    this.stopMovement();    // One animation movement at a time people
     this.movement = new Kinetic.Animation(
-	function(frame) {
-	    _this.advance(x, y);
-	}, _this.layer
+	    function(frame) {
+	        _this.advance(x, y);
+	    }, _this.layer
     );    
     this.movement.start();
 };
 
+Player.prototype.rotate = function(rad) {
+    // This would be neater as an animation
+    this.player.group.setRotation(this.player.group.getRotation() + rad);
+};
+
 Player.prototype.advance = function(x, y) {
     // This works fine for team 0, but the locations on team 2 are jacked.  need to figure out how to handle drawing dots better, perhaps two boundaries objects for each position, one per team?
-
     if(this.location.x != x) {
-	// Goalie movement
-	this.location.x = this.location.x + this.speed;
-    } 
+        // Goalie movement
+        this.location.x = this.location.x + this.speed;
+    }
     if(this.location.y != y) {
-	this.location.y = this.location.y < y ? (this.location.y + Math.min(this.speed, (y - this.location.y))) : (this.location.y - Math.min(this.speed, (this.location.y - y)));
-	// Move player stick
-	var stickPoints = this.player.stick.getPoints();
+        // Vertical Movement of skaters
+        this.location.y = this.location.y < y ? (this.location.y + Math.min(this.speed, (y - this.location.y))) : (this.location.y - Math.min(this.speed, (this.location.y - y)));
     }
     // Ensure that we're within the dimensions allowed
     if(this.location.y > this.position.boundaries.y[1]) {
-	this.location.y = this.position.boundaries.y[1];
+        this.location.y = this.position.boundaries.y[1];
     } else if(this.location.y < this.position.boundaries.y[0]) {
-	this.location.y = this.position.boundaries.y[0];
+        this.location.y = this.position.boundaries.y[0];
     }
-
-
-    if(
-	(this.location.x == x || this.location.x == this.position.boundaries.x[0] || this.location.x == this.position.boundaries.x[1])
-	&& 
-	(this.location.y == y || this.location.y == this.position.boundaries.y[0] || this.location.y == this.position.boundaries.y[1])
-    ) {
-	console.log('stopping player movement.');
-	this.movement.stop()
-	return false;
+    if( (this.location.x == x || this.location.x == this.position.boundaries.x[0] || this.location.x == this.position.boundaries.x[1]) && (this.location.y == y || this.location.y == this.position.boundaries.y[0] || this.location.y == this.position.boundaries.y[1]) ) {
+        this.stopMovement();
+        return false;
     }
-    this.player.body.setX(this.location.x + this.hockey.rink.offset.x);
-    this.player.body.setY(this.location.y + this.hockey.rink.offset.y);
-    // Move the sticks -- Offset is copy and pasted from this.location.y math, needs to be functioned off
-    stickPoints[0].y = this.location.y < y ? (stickPoints[0].y + Math.min(this.speed, (y - this.location.y))) : (stickPoints[0].y - Math.min(this.speed, (this.location.y - y)));
-    stickPoints[1].y = this.location.y < y ? (stickPoints[1].y + Math.min(this.speed, (y - this.location.y))) : (stickPoints[1].y - Math.min(this.speed, (this.location.y - y)));
-
+    this.player.group.setX(this.location.x + this.hockey.rink.offset.x);
+    this.player.group.setY(this.location.y + this.hockey.rink.offset.y);
+    return false;
 };
 
 Player.prototype.select = function() {
@@ -130,6 +126,10 @@ Player.prototype.select = function() {
     this.layer.draw();
     this.selected = true;
 };
+
+Player.prototype.stopMovement = function() {
+    if(this.movement) this.movement.stop();
+}
 
 Player.CONSTANTS = {
     positions: [ {positionId: 1, abbreviation: 'LW', name: 'Left Wing', boundaries : { x: [25, 25], y: [20, 250]}, hasStick: true, selectKey:'A' },

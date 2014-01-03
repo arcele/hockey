@@ -9,8 +9,20 @@ function Team(hockey, id, playersLayer) {
 
 Team.prototype.resetSelectors = function() {
     for(var i = 0; i < this.players.length-1; i++) {
-        this.players[i].player.selected = false;
+        this.players[i].selected = false;
+        this.players[i].stopMovement();
         this.players[i].player.playerSelector.wrapper.setFill("#ccc");
     }
     this.layer.draw();
-}
+};
+
+Team.prototype.getSelectedPlayer = function() {
+    var selected = null;
+    for(var i = 0; i < this.players.length; i++) {
+        if(this.players[i].selected == true) {
+            selected = this.players[i];
+            break
+        }
+    }
+    return selected;
+};

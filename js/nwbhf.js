@@ -9,6 +9,7 @@
 
     Hockey.rink = new Rink(Hockey.stage);
     Hockey.puck = new Puck(Hockey);
+    Hockey.mouseMovements = new Array();
 
     Hockey.teams = new Array();
 
@@ -18,5 +19,28 @@
     }
 
     Hockey.stage.add(playersLayer);
+
+    var _hockey = Hockey;
+    Hockey.stage.on('mousemove', function() {
+        var mousePos = this.getPointerPosition();
+        var x = mousePos.x;
+        var y = mousePos.y;
+        _hockey.mouseMovements.push({x: x, y: y});
+        if(_hockey.mouseMovements.length > 10) {
+            var dump = _hockey.mouseMovements.shift();
+        }
+
+        if(_hockey.mouseMovements.length > 1) {
+            var selectedPlayer = _hockey.teams[0].getSelectedPlayer();
+            if(selectedPlayer != null) {
+                var lastMovement = _hockey.mouseMovements[_hockey.mouseMovements.length - 1];
+                var secondLastMovement = _hockey.mouseMovements[_hockey.mouseMovements.length - 2];
+                selectedPlayer.move(selectedPlayer.location.x, selectedPlayer.location.y + ( 5 * (lastMovement.y - secondLastMovement.y)));
+                selectedPlayer.rotate((lastMovement.x - secondLastMovement.x) / 10);
+            }
+        }
+
+
+    });
 
 })();
