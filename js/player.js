@@ -132,11 +132,11 @@ Player.prototype.stopMovement = function() {
 }
 
 Player.CONSTANTS = {
-    positions: [ {positionId: 1, abbreviation: 'LW', name: 'Left Wing', boundaries : { x: [25, 25], y: [20, 250]}, hasStick: true, selectKey:'A' },
-		 {positionId: 2, abbreviation: 'RW', name: 'Right Wing', boundaries : { x: [196, 196], y: [20, 250]}, hasStick: true, selectKey: 'G' },
-		 {positionId: 3, abbreviation: 'C', name: 'Center', boundaries: { x:[110, 110], y:[65, 250]}, hasStick: true, selectKey: 'D'},
-		 {positionId: 4, abbreviation: 'LD', name: 'Left Defenseman', boundaries: { x:[67, 67], y:[280, 500]}, hasStick: true, selectKey:'S' },
-		 {positionId: 5, abbreviation: 'RD', name: 'Right Defenseman', boundaries: { x:[154, 154], y:[280, 500]}, hasStick: true, selectKey:'F' },
+    positions: [ {positionId: 1, abbreviation: 'LW', name: 'Left Wing', boundaries : { x: [25, 25], y: [20, 250]}, hasStick: true },
+		 {positionId: 2, abbreviation: 'RW', name: 'Right Wing', boundaries : { x: [196, 196], y: [20, 250]}, hasStick: true },
+		 {positionId: 3, abbreviation: 'C', name: 'Center', boundaries: { x:[110, 110], y:[65, 250]}, hasStick: true },
+		 {positionId: 4, abbreviation: 'LD', name: 'Left Defenseman', boundaries: { x:[67, 67], y:[280, 500]}, hasStick: true },
+		 {positionId: 5, abbreviation: 'RD', name: 'Right Defenseman', boundaries: { x:[154, 154], y:[280, 500]}, hasStick: true },
 		 {positionId: 6, abbreviation: 'G', name: 'Goalie', boundaries: {x:[90,130], y:[485, 485]}, hasStick: false }
 	       ]
 };
@@ -145,7 +145,7 @@ Player.CONSTANTS = {
 function PlayerSelector(player) {
     this.player = player;
     this.hockey = player.hockey;
-    if(this.player.position.selectKey != null) {
+    if(this.player.position && player.position.abbreviation != 'G') {
         this.group = new Kinetic.Group({
             x: this.hockey.rink.offset.x + this.player.position.boundaries.x[0],
             y: this.hockey.rink.offset.y - 20
@@ -166,10 +166,10 @@ function PlayerSelector(player) {
         this.group.add(this.wrapper);
 
         this.character = new Kinetic.Text({
-            fontSize: 20,
-            x: -7,
-            y: -10,
-            text: this.player.position.selectKey,
+            fontSize: 15,
+            x: -12,
+            y: -8,
+            text: this.player.position.abbreviation,
             fill: 'black'
         });
         this.group.add(this.character);
