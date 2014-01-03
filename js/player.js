@@ -84,7 +84,7 @@ Player.prototype.move = function(x,y) {
 	    function(frame) {
 	        _this.advance(x, y);
 	    }, _this.layer
-    );    
+    );
     this.movement.start();
 };
 
@@ -130,11 +130,11 @@ Player.prototype.stopMovement = function() {
 }
 
 Player.CONSTANTS = {
-    positions: [ {positionId: 1, abbreviation: 'LW', name: 'Left Wing', boundaries : { x: [25, 25], y: [20, 250]}, hasStick: true },
-		{positionId: 2, abbreviation: 'RW', name: 'Right Wing', boundaries : { x: [196, 196], y: [20, 250]}, hasStick: true },
-		{positionId: 3, abbreviation: 'C', name: 'Center', boundaries: { x:[110, 110], y:[65, 250]}, hasStick: true },
-		{positionId: 4, abbreviation: 'LD', name: 'Left Defenseman', boundaries: { x:[67, 67], y:[280, 500]}, hasStick: true },
-		{positionId: 5, abbreviation: 'RD', name: 'Right Defenseman', boundaries: { x:[154, 154], y:[280, 500]}, hasStick: true },
+    positions: [ {positionId: 1, abbreviation: 'LW', name: 'Left Wing', boundaries : { x: [25, 25], y: [20, 250]}, hasStick: true, wrapperWidth: 50, wrapperTop: 0, wrapperLeft: 0 },
+		{positionId: 2, abbreviation: 'RW', name: 'Right Wing', boundaries : { x: [196, 196], y: [20, 250]}, hasStick: true, wrapperWidth: 50, wrapperTop: 0, wrapperLeft: 0 },
+		{positionId: 3, abbreviation: 'C', name: 'Center', boundaries: { x:[110, 110], y:[65, 250]}, hasStick: true, wrapperWidth: 50, wrapperTop: 0, wrapperLeft: 0 },
+		{positionId: 4, abbreviation: 'LD', name: 'Left Defenseman', boundaries: { x:[67, 67], y:[280, 500]}, hasStick: true, wrapperWidth: 80, wrapperTop: 265, wrapperLeft: -15 },
+		{positionId: 5, abbreviation: 'RD', name: 'Right Defenseman', boundaries: { x:[154, 154], y:[280, 500]}, hasStick: true, wrapperWidth: 80, wrapperTop: 265, wrapperLeft: -15 },
 		{positionId: 6, abbreviation: 'G', name: 'Goalie', boundaries: {x:[90,130], y:[485, 485]}, hasStick: false }
     ]
 };
@@ -151,9 +151,14 @@ function PlayerSelector(player) {
         });
 
         this.wrapper = new Kinetic.Rect({
-            width: 50,
-            height: 530,
-            stroke: 'red',
+            width: this.player.position.wrapperWidth,
+            height: 260,
+            x: this.player.position.wrapperLeft,
+            y: this.player.position.wrapperTop,
+
+
+            stroke: 'black',
+            fill: 'blue',
             opacity: 0
         })
         this.group.add(this.wrapper);
