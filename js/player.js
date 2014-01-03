@@ -161,8 +161,8 @@ function PlayerSelector(player) {
         this.icon = new Kinetic.Circle({
             x: 25,
             radius: 15,
-            stroke: '#666',
-            strokeWidth:1,
+            stroke: 'black',
+            strokeWidth:2,
             fill: '#ccc'
         });
 
@@ -176,10 +176,13 @@ function PlayerSelector(player) {
 
         this.character = new Kinetic.Text({
             fontSize: 15,
-            x: 13,
+            x: 0,
             y: -8,
+            width:50,
+            align: 'center',
             text: this.player.position.abbreviation,
-            fill: 'black'
+            fill: 'black',
+            fontStyle: 'bold'
         });
         this.group.add(this.character);
         this.player.layer.add(this.group);
