@@ -72,8 +72,6 @@ Player.prototype.render = function() {
         this.player.playerSelector = new PlayerSelector(this);
     }
 
-
-
     this.layer.add(this.player.boundary);
     this.hockey.rink.layer.add(this.player.boundary);
     this.layer.add(this.player.group);
@@ -122,7 +120,7 @@ Player.prototype.advance = function(x, y) {
 
 Player.prototype.select = function() {
     this.team.resetSelectors();
-    this.player.playerSelector.wrapper.setFill('red');
+    this.player.playerSelector.icon.setFill('red');
     this.layer.draw();
     this.selected = true;
 };
@@ -133,12 +131,12 @@ Player.prototype.stopMovement = function() {
 
 Player.CONSTANTS = {
     positions: [ {positionId: 1, abbreviation: 'LW', name: 'Left Wing', boundaries : { x: [25, 25], y: [20, 250]}, hasStick: true },
-		 {positionId: 2, abbreviation: 'RW', name: 'Right Wing', boundaries : { x: [196, 196], y: [20, 250]}, hasStick: true },
-		 {positionId: 3, abbreviation: 'C', name: 'Center', boundaries: { x:[110, 110], y:[65, 250]}, hasStick: true },
-		 {positionId: 4, abbreviation: 'LD', name: 'Left Defenseman', boundaries: { x:[67, 67], y:[280, 500]}, hasStick: true },
-		 {positionId: 5, abbreviation: 'RD', name: 'Right Defenseman', boundaries: { x:[154, 154], y:[280, 500]}, hasStick: true },
-		 {positionId: 6, abbreviation: 'G', name: 'Goalie', boundaries: {x:[90,130], y:[485, 485]}, hasStick: false }
-	       ]
+		{positionId: 2, abbreviation: 'RW', name: 'Right Wing', boundaries : { x: [196, 196], y: [20, 250]}, hasStick: true },
+		{positionId: 3, abbreviation: 'C', name: 'Center', boundaries: { x:[110, 110], y:[65, 250]}, hasStick: true },
+		{positionId: 4, abbreviation: 'LD', name: 'Left Defenseman', boundaries: { x:[67, 67], y:[280, 500]}, hasStick: true },
+		{positionId: 5, abbreviation: 'RD', name: 'Right Defenseman', boundaries: { x:[154, 154], y:[280, 500]}, hasStick: true },
+		{positionId: 6, abbreviation: 'G', name: 'Goalie', boundaries: {x:[90,130], y:[485, 485]}, hasStick: false }
+    ]
 };
 
 
@@ -147,27 +145,38 @@ function PlayerSelector(player) {
     this.hockey = player.hockey;
     if(this.player.position && player.position.abbreviation != 'G') {
         this.group = new Kinetic.Group({
-            x: this.hockey.rink.offset.x + this.player.position.boundaries.x[0],
-            y: this.hockey.rink.offset.y - 20
+            x: this.hockey.rink.offset.x + this.player.position.boundaries.x[0] - 25,
+            y: this.hockey.rink.offset.y - 2,
+            height:600
         });
 
-        this.wrapper = new Kinetic.Circle({
+        this.wrapper = new Kinetic.Rect({
+            width: 50,
+            height: 530,
+            stroke: 'red',
+            opacity: 0
+        })
+        this.group.add(this.wrapper);
+
+        this.icon = new Kinetic.Circle({
+            x: 25,
             radius: 15,
             stroke: '#666',
             strokeWidth:1,
             fill: '#ccc'
         });
+
         var _this = this;
-        this.wrapper.on('mouseover touchstart', function() {
+        this.group.on('mouseover touchstart', function() {
             _this.player.select();
         });
 
 
-        this.group.add(this.wrapper);
+        this.group.add(this.icon);
 
         this.character = new Kinetic.Text({
             fontSize: 15,
-            x: -12,
+            x: 13,
             y: -8,
             text: this.player.position.abbreviation,
             fill: 'black'
