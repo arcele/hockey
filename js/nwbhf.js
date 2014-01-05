@@ -33,8 +33,15 @@
             if(selectedPlayer != null) {
                 var lastMovement = _hockey.mouseMovements[_hockey.mouseMovements.length - 1];
                 var secondLastMovement = _hockey.mouseMovements[_hockey.mouseMovements.length - 2];
-                selectedPlayer.move(selectedPlayer.location.x, selectedPlayer.location.y + ( 5 * (lastMovement.y - secondLastMovement.y)));
+                if(!selectedPlayer.animation || !selectedPlayer.animation.isRunning()) {
+                    selectedPlayer.move(selectedPlayer.location.x, selectedPlayer.location.y + ((lastMovement.y - secondLastMovement.y)));
+                }
                 selectedPlayer.rotate((lastMovement.x - secondLastMovement.x) / 3);
+                // Collision?
+                if(selectedPlayer.collided) {
+                    _hockey.puck.shoot();
+                    selectedPlayer.resetCollisions();
+                }
             }
         }
 

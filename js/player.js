@@ -5,7 +5,7 @@ function Player(hockey, team, positionId) {
     this.bodyRadius = 8;
     this.stickReach = 7;
     this.stickLength = 15;
-    this.speed = 5;
+    this.speed = 1;
     this.layer = team.layer;
     this.location = {
 	    x: this.startingPoint('x'),
@@ -13,6 +13,7 @@ function Player(hockey, team, positionId) {
     };
     this.stickAngle = Math.random() * Math.PI * 2;
     this.selected = false;
+    this.collided = false;
     this.render();
 }
 
@@ -91,6 +92,13 @@ Player.prototype.move = function(x,y) {
 Player.prototype.rotate = function(rad) {
     // This would be neater as an animation
     this.player.group.setRotation(this.player.group.getRotation() + rad);
+    this.detectCollision();
+};
+
+Player.prototype.detectCollision = function() {
+    if(Math.abs(this.location.x - this.hockey.puck.location.x) < (this.bodyRadius + this.stickLength) && Math.abs(this.location.y - this.hockey.puck.location.y) < (this.bodyRadius + this.stickLength)) {
+        this.collided = true;
+    }
 };
 
 Player.prototype.advance = function(x, y) {
@@ -115,7 +123,7 @@ Player.prototype.advance = function(x, y) {
     }
     this.player.group.setX(this.location.x + this.hockey.rink.offset.x);
     this.player.group.setY(this.location.y + this.hockey.rink.offset.y);
-    return false;
+    this.advance(x,y);
 };
 
 Player.prototype.select = function() {
@@ -127,7 +135,11 @@ Player.prototype.select = function() {
 
 Player.prototype.stopMovement = function() {
     if(this.movement) this.movement.stop();
-}
+};
+
+Player.prototype.resetCollisions = function() {
+    this.collided = false;
+};
 
 Player.CONSTANTS = {
     positions: [ {positionId: 1, abbreviation: 'LW', name: 'Left Wing', boundaries : { x: [25, 25], y: [20, 250]}, hasStick: true, wrapperWidth: 50, wrapperTop: 0, wrapperLeft: 0 },
@@ -155,8 +167,6 @@ function PlayerSelector(player) {
             height: 260,
             x: this.player.position.wrapperLeft,
             y: this.player.position.wrapperTop,
-
-
             stroke: 'black',
             fill: 'blue',
             opacity: 0
