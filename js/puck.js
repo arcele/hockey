@@ -35,8 +35,8 @@ Puck.prototype.shoot = function(velocity, angle) {
     var _this = this;
     this.shot = new Kinetic.Animation(
 	function(frame) {
-	    _this.advance();
-	}, _this.layer
+	        _this.advance();
+        }, _this.layer
     );
     this.shot.start();
 };
@@ -46,27 +46,26 @@ Puck.prototype.advance = function() {
     this.location.y = this.location.y + this.velocity * Math.cos(this.angle);
 
     if(this.velocity > 0) {
-	this.velocity -= 0.012; // Drag
+        this.velocity -= .1; // Drag
     } else {
-	this.shot.stop();
+        this.shot.stop();
     }
 
     if(this.location.x > 220) {
-	this.location.x = 220 - (this.location.x - 220);
-	this.deflect('x');
+        this.location.x = 220 - (this.location.x - 220);
+        this.deflect('x');
     } else if(this.location.x < 0) {
-	this.location.x = Math.abs(this.location.x);
-	this.deflect('x');
+        this.location.x = Math.abs(this.location.x);
+        this.deflect('x');
     }
 
     if(this.location.y > 520) {
-	this.location.y = 520 - (this.location.y - 520);
-	this.deflect('y');
+        this.location.y = 520 - (this.location.y - 520);
+        this.deflect('y');
     } else if (this.location.y < 0) {
-	this.location.y = Math.abs(this.location.y);
-	this.deflect('y');
+        this.location.y = Math.abs(this.location.y);
+        this.deflect('y');
     }
-
     this.puck.setX(this.location.x + this.hockey.rink.offset.x);
     this.puck.setY(this.location.y + this.hockey.rink.offset.y);
 };
