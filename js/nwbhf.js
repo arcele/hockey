@@ -39,7 +39,7 @@
                 selectedPlayer.rotate((lastMovement.x - secondLastMovement.x) / 3);
                 // Collision?
                 if(selectedPlayer.collided) {
-                    _hockey.puck.shoot();
+                    _hockey.puck.shoot(8, selectedPlayer.stickAngle);
                     selectedPlayer.resetCollisions();
                 }
             }
