@@ -1,6 +1,5 @@
 // TO DO
 //  Take into account the angle of the boards when deflecting
-//  Change position -> location
 //  Need universal variable naming convention for Kinetic shapes on object to replace Puck.puck & Player.player
 
 
@@ -9,7 +8,7 @@ function Puck (hockey) {
     this.stage = hockey.stage;
     this.velocity = 0.0;
     this.angle = 0.0;
-    this.position = { x:110, y:260 };
+    this.location = { x:110, y:260 };
     this.shot = null;
     this.layer = new Kinetic.Layer({ id: 'puck'});
     this.render();
@@ -18,8 +17,8 @@ function Puck (hockey) {
 Puck.prototype.render = function() {
     this.puck = new Kinetic.Circle( // Hockey.puck.puck is probably a terrible name
 	{
-	    x: this.position.x + this.hockey.rink.offset.x,
-	    y: this.position.y + this.hockey.rink.offset.y,
+	    x: this.location.x + this.hockey.rink.offset.x,
+	    y: this.location.y + this.hockey.rink.offset.y,
 	    radius: 3,
 	    fill: '#111',
 	    stroke: '#000'
@@ -43,8 +42,8 @@ Puck.prototype.shoot = function(velocity, angle) {
 };
 
 Puck.prototype.advance = function() {
-    this.position.x = this.position.x + this.velocity * Math.sin(this.angle);
-    this.position.y = this.position.y + this.velocity * Math.cos(this.angle);
+    this.location.x = this.location.x + this.velocity * Math.sin(this.angle);
+    this.location.y = this.location.y + this.velocity * Math.cos(this.angle);
 
     if(this.velocity > 0) {
 	this.velocity -= 0.012; // Drag
@@ -52,24 +51,24 @@ Puck.prototype.advance = function() {
 	this.shot.stop();
     }
 
-    if(this.position.x > 220) {
-	this.position.x = 220 - (this.position.x - 220);
+    if(this.location.x > 220) {
+	this.location.x = 220 - (this.location.x - 220);
 	this.deflect('x');
-    } else if(this.position.x < 0) {
-	this.position.x = Math.abs(this.position.x);
+    } else if(this.location.x < 0) {
+	this.location.x = Math.abs(this.location.x);
 	this.deflect('x');
     }
 
-    if(this.position.y > 520) {
-	this.position.y = 520 - (this.position.y - 520);
+    if(this.location.y > 520) {
+	this.location.y = 520 - (this.location.y - 520);
 	this.deflect('y');
-    } else if (this.position.y < 0) {
-	this.position.y = Math.abs(this.position.y);
+    } else if (this.location.y < 0) {
+	this.location.y = Math.abs(this.location.y);
 	this.deflect('y');
     }
 
-    this.puck.setX(this.position.x + this.hockey.rink.offset.x);
-    this.puck.setY(this.position.y + this.hockey.rink.offset.y);
+    this.puck.setX(this.location.x + this.hockey.rink.offset.x);
+    this.puck.setY(this.location.y + this.hockey.rink.offset.y);
 };
 
 Puck.prototype.deflect = function(axis) {
