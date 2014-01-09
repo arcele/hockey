@@ -1,6 +1,6 @@
 
-function Rink (stage) {
-	this.stage = stage;
+function Rink (hockey) {
+	this.hockey = hockey;
 	this.offset = { x: 200, y: 75 };
 	this.size = { x: 221, y: 520 };
 	this.layer = new Kinetic.Layer({ id: 'rink'});
@@ -94,6 +94,13 @@ Rink.prototype.render = function() {
 		rotation: Math.PI / 2
 	});
 
+	var _this = this;
+	bumper.on('mouseover touchstart', function() {
+		_this.hockey.puck.shoot((Math.random() + 2), (7 / 4 * Math .PI) + (3 / 2 * Math.PI));
+	});
+	
+
+
 	this.layer.add(bumper);
 	this.layer.add(bumperText);
 	bumper = new Kinetic.Rect({
@@ -117,8 +124,12 @@ Rink.prototype.render = function() {
 		fill: '#777',
 		rotation: 3 * Math.PI / 2
 	});
+	bumper.on('mouseover touchstart', function() {
+		_this.hockey.puck.shoot(2.5, (3 / 4 * Math.PI) + Math.random() * (3 / 2 * Math.PI));
+	});
+
 	this.layer.add(bumper);
 	this.layer.add(bumperText);
 
-	this.stage.add(this.layer);
+	this.hockey.stage.add(this.layer);
 }

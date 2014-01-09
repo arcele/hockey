@@ -7,7 +7,7 @@
         height:800
 	});
 
-    Hockey.rink = new Rink(Hockey.stage);
+    Hockey.rink = new Rink(Hockey);
     Hockey.puck = new Puck(Hockey);
     Hockey.mouseMovements = [];
     Hockey.teams = [];
