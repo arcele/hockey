@@ -17,33 +17,14 @@ Rink.prototype.render = function() {
 		height: this.size.y,
 		fill: '#EFEAF7',
 		stroke: 'black',
-		strokeWidth: 2
+		strokeWidth: 2,
+		cornerRadius: 30
+
 	});
 	this.layer.add(rink);
 
 	var rinkHeight = rink.getHeight();
 	var rinkWidth = rink.getWidth();
-
-	// Round out the boards -- Proper Scale
-	var curves = [
-		{ x: (200 + rinkHeight * .07), y: (75 + rinkHeight * .07), startAngle: Math.PI, endAngle: 1.5 * Math.PI },
-		{ x: (200 + rinkWidth) - (rinkHeight * .07), y: (75 + rinkHeight * .07), startAngle: 1.5 * Math.PI, endAngle: 0 },
-		{ x: (200 + rinkHeight * .07), y: (75 + rinkHeight * .93), startAngle:.5 * Math.PI, endAngle: Math.PI },
-		{ x: (200 + rinkWidth) - (rinkHeight * .07), y: (75 + rinkHeight * .93), startAngle: 0, endAngle: .5 * Math.PI }
-	];
-
-	var rinkRounding = new Kinetic.Shape( {
-		drawFunc: function(context) {
-			for(var i = 0; i < curves.length; i++) {
-				context.beginPath();
-				context.arc(curves[i].x, curves[i].y, (rinkHeight * .07), curves[i].startAngle, curves[i].endAngle, false);
-				context.fillStrokeShape(this);
-			}
-		},
-		stroke:'black',
-		strokeWidth: 2
-	});
-	this.layer.add(rinkRounding);
 
 	// Add Red Line / Blue Lines / Goal Lines -- Proper Scale
 	var redLine = new Kinetic.Line({
