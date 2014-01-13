@@ -36,9 +36,7 @@
                 if(!selectedPlayer.animation || !selectedPlayer.animation.isRunning()) {
                     selectedPlayer.move(selectedPlayer.location.x, selectedPlayer.location.y + ((lastMovement.y - secondLastMovement.y)));
                 }
-                selectedPlayer.rotate((lastMovement.x - secondLastMovement.x) / 3);
-                // Collision?
-                //if(selectedPlayer.collided) {
+                selectedPlayer.rotate((lastMovement.x - secondLastMovement.x) / 10);
 				if(selectedPlayer.collisionType != null) {
 					if(selectedPlayer.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
 						if(console) console.log("Shot");
