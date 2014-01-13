@@ -96,7 +96,7 @@ Rink.prototype.render = function() {
 
 	var _this = this;
 	bumper.on('mouseover touchstart', function() {
-		_this.hockey.puck.shoot((Math.random() + 2), (7 / 4 * Math .PI) + (3 / 2 * Math.PI));
+		_this.hockey.puck.shoot((Math.random() + 2), Math.random() * 2 * Math.PI);
 	});
 	
 
@@ -125,7 +125,7 @@ Rink.prototype.render = function() {
 		rotation: 3 * Math.PI / 2
 	});
 	bumper.on('mouseover touchstart', function() {
-		_this.hockey.puck.shoot(2.5, (3 / 4 * Math.PI) + Math.random() * (3 / 2 * Math.PI));
+		_this.hockey.puck.shoot(2.5, (3 / 4 * Math.PI) + Math.random() * 2 * Math.PI);
 	});
 
 	this.layer.add(bumper);
