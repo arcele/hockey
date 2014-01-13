@@ -105,13 +105,13 @@ Player.prototype.rotate = function(rad) {
 };
 
 Player.prototype.detectCollision = function() {
-    var xOffset = this.location.x - this.hockey.puck.location.x, xDistance = Math.abs(xOffset);
-    var yOffset = this.location.y - this.hockey.puck.location.y, yDistance = Math.abs(yOffset);
-    if(xDistance < this.bodyRadius && yDistance < this.bodyRadius) {
-        // Body Bump
-        this.collisionType = Player.CONSTANTS.collisionTypes.BUMP;
-    } else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
-        // Potential for Shot, depending on stick angle (ignore possibility of puck going between stick & body for now)
+	var xOffset = this.location.x - this.hockey.puck.location.x, xDistance = Math.abs(xOffset);
+	var yOffset = this.location.y - this.hockey.puck.location.y, yDistance = Math.abs(yOffset);
+	if(xDistance < this.bodyRadius && yDistance < this.bodyRadius) {
+		// Body Bump
+		this.collisionType = Player.CONSTANTS.collisionTypes.BUMP;
+	} else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
+		// Potential for Shot, depending on stick angle (ignore possibility of puck going between stick & body for now)
 		var puckOffset = 0;
 		if(xOffset <= 0 && yOffset >= 0) {  // puck is in first quadrent
 			puckOffset = 0 ;
@@ -128,10 +128,10 @@ Player.prototype.detectCollision = function() {
 		}
 
 		var puckAngle = puckOffset + Math.atan(xOffset / yOffset); // Angle the puck is from the player
-        if(Math.abs(puckAngle - this.stickAngle) < Math.PI / 16) {  // If the stick is reasonable close
-        	this.collisionType = Player.CONSTANTS.collisionTypes.SHOT;        	
+		if(Math.abs(puckAngle - this.stickAngle) < Math.PI / 16) {  // If the stick is reasonable close
+			this.collisionType = Player.CONSTANTS.collisionTypes.SHOT;        	
 		}
-    }
+	}
 };
 
 Player.prototype.advance = function(x, y) {
