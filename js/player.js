@@ -92,8 +92,16 @@ Player.prototype.move = function(x,y) {
 
 Player.prototype.rotate = function(rad) {
     // This would be neater as an animation
-    this.player.group.setRotation(this.player.group.getRotation() + rad);
-    this.detectCollision();
+	var newRotation = this.player.group.getRotation() + rad;
+	while(newRotation > 2 * Math.PI) {
+		newRotation -= 2 * Math.PI;
+	}
+	while(newRotation < -2 * Math.PI) {
+		newRotation += 2 * Math.PI;
+	}
+	this.player.group.setRotation(newRotation);
+	this.stickAngle = newRotation;
+	this.detectCollision();
 };
 
 Player.prototype.detectCollision = function() {
@@ -104,7 +112,25 @@ Player.prototype.detectCollision = function() {
         this.collisionType = Player.CONSTANTS.collisionTypes.BUMP;
     } else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
         // Potential for Shot, depending on stick angle (ignore possibility of puck going between stick & body for now)
-        this.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
+		var puckOffset = 0;
+		if(xOffset <= 0 && yOffset >= 0) {  // puck is in first quadrent
+			puckOffset = 0 ;
+			console.log("Q1")
+		} else if(xOffset <= 0 && yOffset <= 0) { // second quandrent
+			puckOffset = Math.PI / 2;
+			console.log("Q2")
+		} else if(xOffset >= 0 && yOffset <= 0) { // third quadrent
+			puckOffset = Math.PI;
+			console.log("Q3")
+		} else if(xOffset >= 0 && yOffset >= 0) { // fourth quadrent
+			puckOffset = 3 * Math.PI / 2;
+			console.log("Q4")
+		}
+
+		var puckAngle = puckOffset + Math.atan(xOffset / yOffset); // Angle the puck is from the player
+        if(Math.abs(puckAngle - this.stickAngle) < Math.PI / 16) {  // If the stick is reasonable close
+        	this.collisionType = Player.CONSTANTS.collisionTypes.SHOT;        	
+		}
     }
 };
 
