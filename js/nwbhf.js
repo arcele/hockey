@@ -38,14 +38,20 @@
                 }
                 selectedPlayer.rotate((lastMovement.x - secondLastMovement.x) / 3);
                 // Collision?
-                if(selectedPlayer.collided) {
-                    _hockey.puck.shoot(8, selectedPlayer.stickAngle);
-                    selectedPlayer.resetCollisions();
-                }
-            }
-        }
+                //if(selectedPlayer.collided) {
+				if(selectedPlayer.collisionType != null) {
+					if(selectedPlayer.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
+						if(console) console.log("Shot");
+						_hockey.puck.shoot(8, selectedPlayer.stickAngle);
 
-
-    });
-
+					} else if(selectedPlayer.collisionType == Player.CONSTANTS.collisionTypes.BUMP) {
+						// Body Stroke direction should depend on the angle where the puck hits the circle of the body.  This is just a placeholder
+						if(console) console.log("Bump");
+						_hockey.puck.shoot(3, Math.random() * Math.PI * 2); 
+					}
+					selectedPlayer.resetCollisions();
+				}
+			}
+		}
+	});
 })();

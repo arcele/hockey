@@ -14,6 +14,7 @@ function Player(hockey, team, positionId) {
     this.stickAngle = Math.random() * Math.PI * 2;
     this.selected = false;
     this.collided = false;
+    this.collisionType = null;
     this.render();
 }
 
@@ -96,8 +97,14 @@ Player.prototype.rotate = function(rad) {
 };
 
 Player.prototype.detectCollision = function() {
-    if(Math.abs(this.location.x - this.hockey.puck.location.x) < (this.bodyRadius + this.stickLength) && Math.abs(this.location.y - this.hockey.puck.location.y) < (this.bodyRadius + this.stickLength)) {
-        this.collided = true;
+    var xOffset = this.location.x - this.hockey.puck.location.x, xDistance = Math.abs(xOffset);
+    var yOffset = this.location.y - this.hockey.puck.location.y, yDistance = Math.abs(yOffset);
+    if(xDistance < this.bodyRadius && yDistance < this.bodyRadius) {
+        // Body Bump
+        this.collisionType = Player.CONSTANTS.collisionTypes.BUMP;
+    } else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
+        // Potential for Shot, depending on stick angle (ignore possibility of puck going between stick & body for now)
+        this.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
     }
 };
 
@@ -138,7 +145,7 @@ Player.prototype.stopMovement = function() {
 };
 
 Player.prototype.resetCollisions = function() {
-    this.collided = false;
+    this.collisionType = null;
 };
 
 Player.CONSTANTS = {
@@ -148,7 +155,12 @@ Player.CONSTANTS = {
 		{positionId: 4, abbreviation: 'LD', name: 'Left Defenseman', boundaries: { x:[67, 67], y:[280, 500]}, hasStick: true, wrapperWidth: 80, wrapperTop: 265, wrapperLeft: -15 },
 		{positionId: 5, abbreviation: 'RD', name: 'Right Defenseman', boundaries: { x:[154, 154], y:[280, 500]}, hasStick: true, wrapperWidth: 80, wrapperTop: 265, wrapperLeft: -15 },
 		{positionId: 6, abbreviation: 'G', name: 'Goalie', boundaries: {x:[90,130], y:[485, 485]}, hasStick: false }
-    ]
+    ],
+    collisionTypes: {
+            "SHOT": 1,
+            "BUMP": 2
+    }
+
 };
 
 
