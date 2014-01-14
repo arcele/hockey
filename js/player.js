@@ -46,7 +46,7 @@ Player.prototype.render = function() {
     if(this.position.hasStick) {
         var stickStart = this.bodyRadius / 2 + this.stickReach;
         this.player.stick = new Kinetic.Line({
-            points: [[stickStart, 0],[stickStart + this.stickLength, 0]],
+            points: [[0, (-.5 * this.bodyRadius) - this.stickReach], [0, (-1 * this.stickLength - this.stickReach - .5 * this.bodyRadius)]],
             stroke: '#452200',
             strokeWidth: 3
         });
