@@ -92,16 +92,17 @@ Player.prototype.move = function(x,y) {
 
 Player.prototype.rotate = function(rad) {
     // This would be neater as an animation
-	var newRotation = this.player.group.getRotation() + rad;
-	while(newRotation > 2 * Math.PI) {
-		newRotation -= 2 * Math.PI;
-	}
-	while(newRotation < -2 * Math.PI) {
-		newRotation += 2 * Math.PI;
-	}
+	var newRotation = this.simplifyRadians(this.player.group.getRotation() + rad);
 	this.player.group.setRotation(newRotation);
 	this.stickAngle = newRotation;
 	this.detectCollision();
+};
+
+Player.prototype.simplifyRadians = function(radians) {
+	// This shouldn't be on the layer BUT, it simplifies radians to always be a between 0 and 2 * Math.PI
+	while(radians < 0) { radians += 2 * Math.PI; }
+	while(radians > 2 * Math.PI) { radians -= 2 * Math.PI; }
+	return radians;
 };
 
 Player.prototype.detectCollision = function() {
@@ -112,26 +113,18 @@ Player.prototype.detectCollision = function() {
 		this.collisionType = Player.CONSTANTS.collisionTypes.BUMP;
 	} else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
 		// Potential for Shot, depending on stick angle (ignore possibility of puck going between stick & body for now)
-		var puckOffset = 0;
-		if(xOffset <= 0 && yOffset >= 0) {  // puck is in first quadrent
-			puckOffset = 0 ;
-			console.log("Q1")
-		} else if(xOffset <= 0 && yOffset <= 0) { // second quandrent
-			puckOffset = Math.PI / 2;
-			console.log("Q2")
-		} else if(xOffset >= 0 && yOffset <= 0) { // third quadrent
-			puckOffset = Math.PI;
-			console.log("Q3")
-		} else if(xOffset >= 0 && yOffset >= 0) { // fourth quadrent
-			puckOffset = 3 * Math.PI / 2;
-			console.log("Q4")
-		}
-
-		var puckAngle = puckOffset + Math.atan(xOffset / yOffset); // Angle the puck is from the player
-		if(Math.abs(puckAngle - this.stickAngle) < Math.PI / 16) {  // If the stick is reasonable close
-			this.collisionType = Player.CONSTANTS.collisionTypes.SHOT;        	
+		var puckAngle = this.getPuckAngle();
+		if(Math.abs(puckAngle - this.stickAngle) < Player.CONSTANTS.collisionTolerance) { // If the stick is reasonably close
+			this.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
 		}
 	}
+};
+
+Player.prototype.getPuckAngle = function() {
+	var xOffset = this.hockey.puck.location.x - this.location.x, xDistance = Math.abs(xOffset);
+	var yOffset = this.hockey.puck.location.y - this.location.y, yDistance = Math.abs(yOffset);
+	// atan2 is relative to x axis, our stick angle is relative to y axis.  This madness must be fixed -- returning relative to the y axis for now.
+	return this.simplifyRadians(Math.atan2(yOffset, xOffset) + Math.PI / 2);
 };
 
 Player.prototype.advance = function(x, y) {
@@ -185,7 +178,8 @@ Player.CONSTANTS = {
     collisionTypes: {
             "SHOT": 1,
             "BUMP": 2
-    }
+    },
+    collisionTolerance : .32 // Basically equiv to the size of the puck
 
 };
 
