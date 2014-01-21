@@ -39,8 +39,9 @@
 				selectedPlayer.rotate((lastMovement.x - secondLastMovement.x) / 10);
 				if(selectedPlayer.collisionType != null) {
 					if(selectedPlayer.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
-						if(console) console.log("Shot");
-						_hockey.puck.shoot(8, selectedPlayer.stickAngle);
+						var shotAngle = (selectedPlayer.stickAngle + (Math.PI / 2 * selectedPlayer.rotationDirection));
+						if(console) console.log("Shot  :" + shotAngle);
+						_hockey.puck.shoot(8, shotAngle);
 
 					} else if(selectedPlayer.collisionType == Player.CONSTANTS.collisionTypes.BUMP) {
 						// Body Stroke direction should depend on the angle where the puck hits the circle of the body.  This is just a placeholder
