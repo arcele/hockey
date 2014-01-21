@@ -135,7 +135,7 @@ Player.prototype.advance = function(x, y) {
     }
     if(this.location.y != y) {
         // Vertical Movement of skaters
-        this.location.y = this.location.y < y ? (this.location.y + Math.min(this.speed, (y - this.location.y))) : (this.location.y - Math.min(this.speed, (this.location.y - y)));
+		this.location.y = this.location.y < y ? (this.location.y + Math.min(this.speed, (y - this.location.y))) : (this.location.y - Math.min(this.speed, (this.location.y - y)));
     }
     // Ensure that we're within the dimensions allowed
     if(this.location.y > this.position.boundaries.y[1]) {

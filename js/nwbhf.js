@@ -22,7 +22,7 @@
 	Hockey.stage.on('mousemove touchmove', function(event) {
 		var eventPosition = this.getPointerPosition();
 		var x = eventPosition.x;
-		var y = eventPosition.y;
+		var y = eventPosition.y - _hockey.rink.offset.y;
 		_hockey.mouseMovements.push({x: x, y: y});
 		if(_hockey.mouseMovements.length > 10) {
 			var dump = _hockey.mouseMovements.shift();
@@ -34,7 +34,7 @@
 				var lastMovement = _hockey.mouseMovements[_hockey.mouseMovements.length - 1];
 				var secondLastMovement = _hockey.mouseMovements[_hockey.mouseMovements.length - 2];
 				if(!selectedPlayer.animation || !selectedPlayer.animation.isRunning()) {
-					selectedPlayer.move(selectedPlayer.location.x, selectedPlayer.location.y + ((lastMovement.y - secondLastMovement.y)));
+					selectedPlayer.move(selectedPlayer.location.x, lastMovement.y);
 				}
 				selectedPlayer.rotate((lastMovement.x - secondLastMovement.x) / 10);
 				if(selectedPlayer.collisionType != null) {
