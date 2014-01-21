@@ -15,6 +15,7 @@ function Player(hockey, team, positionId) {
     this.selected = false;
     this.collided = false;
     this.collisionType = null;
+    this.rotationDirection = null;
     this.render();
 }
 
@@ -93,6 +94,7 @@ Player.prototype.move = function(x,y) {
 Player.prototype.rotate = function(rad) {
     // This would be neater as an animation
 	var newRotation = this.simplifyRadians(this.player.group.getRotation() + rad);
+	this.rotationDirection = (rad > 0)? Player.CONSTANTS.rotationDirection.CLOCKWISE : Player.CONSTANTS.rotationDirection.COUNTER_CLOCKWISE;
 	this.player.group.setRotation(newRotation);
 	this.stickAngle = newRotation;
 	this.detectCollision();
@@ -179,7 +181,12 @@ Player.CONSTANTS = {
             "SHOT": 1,
             "BUMP": 2
     },
-    collisionTolerance : .32 // Basically equiv to the size of the puck
+    collisionTolerance : .32, // Basically equiv to the size of the puck
+
+    rotationDirection: {
+    	"COUNTER_CLOCKWISE": -1,
+    	"CLOCKWISE": 1
+    }
 
 };
 
