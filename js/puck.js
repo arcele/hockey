@@ -53,33 +53,33 @@ Puck.prototype.advance = function() {
 
     if(this.location.x > 220) {
         this.location.x = 220 - (this.location.x - 220);
-        this.deflect('x');
+        this.deflect(0, 1, 0);
     } else if(this.location.x < 0) {
         this.location.x = Math.abs(this.location.x);
-        this.deflect('x');
+        this.deflect(0, 1, 0);
     }
 
     if(this.location.y > 520) {
         this.location.y = 520 - (this.location.y - 520);
-        this.deflect('y');
+        this.deflect(Math.PI, 1, 0);
     } else if (this.location.y < 0) {
         this.location.y = Math.abs(this.location.y);
-        this.deflect('y');
+        this.deflect(Math.PI, 1, 0);
     }
     this.puck.setX(this.location.x + this.hockey.rink.offset.x);
     this.puck.setY(this.location.y + this.hockey.rink.offset.y);
 };
 
-Puck.prototype.deflect = function(axis) {
-    // Assumes completly vertical/horizontal deflections, need to take into account rounded corners of rink and angled sticks
-    if(axis == 'x') {
-	this.angle = 3 * Math.PI  / 2 - (this.angle - Math.PI / 2);
-    } else if(axis == 'y') {
-	this.angle = Math.PI / 2 + (Math.PI / 2 - this.angle);
-    }
-    if(this.angle > 2 * Math.PI) {
-	this.angle -= 2 * Math.PI;
-    }
+Puck.prototype.deflect = function(deflectionAngle, rotationDirection, rotationSpeed) {
+	// Basic x-axis deflection
+	this.angle = 2 * Math.PI - this.angle;
+	// Add the angle of deflection
+	this.angle += deflectionAngle;
+	// Factor in rotation direction
+	this.angle *= rotationDirection;
+	// Simplify
+	this.angle = this.hockey.rink.simplifyRadians(this.angle);
+	if(console) console.log('deflection');
 };
 
 Puck.prototype.stopShot = function() {
