@@ -133,3 +133,10 @@ Rink.prototype.render = function() {
 
 	this.hockey.stage.add(this.layer);
 }
+
+Rink.prototype.simplifyRadians = function(radians) {
+	// Moving this higher to the rink, should be higher. BUT, it simplifies radians to always be a between 0 and 2 * Math.PI
+	while(radians < 0) { radians += 2 * Math.PI; }
+	while(radians > 2 * Math.PI) { radians -= 2 * Math.PI; }
+	return radians;
+};

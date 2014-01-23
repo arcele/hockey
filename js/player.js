@@ -93,18 +93,11 @@ Player.prototype.move = function(x,y) {
 
 Player.prototype.rotate = function(rad) {
     // This would be neater as an animation
-	var newRotation = this.simplifyRadians(this.player.group.getRotation() + rad);
+	var newRotation = this.hockey.rink.simplifyRadians(this.player.group.getRotation() + rad);
 	this.rotationDirection = (rad > 0)? Player.CONSTANTS.rotationDirection.CLOCKWISE : Player.CONSTANTS.rotationDirection.COUNTER_CLOCKWISE;
 	this.player.group.setRotation(newRotation);
 	this.stickAngle = newRotation;
 	this.detectCollision();
-};
-
-Player.prototype.simplifyRadians = function(radians) {
-	// This shouldn't be on the layer BUT, it simplifies radians to always be a between 0 and 2 * Math.PI
-	while(radians < 0) { radians += 2 * Math.PI; }
-	while(radians > 2 * Math.PI) { radians -= 2 * Math.PI; }
-	return radians;
 };
 
 Player.prototype.detectCollision = function() {
@@ -126,7 +119,7 @@ Player.prototype.getPuckAngle = function() {
 	var xOffset = this.hockey.puck.location.x - this.location.x, xDistance = Math.abs(xOffset);
 	var yOffset = this.hockey.puck.location.y - this.location.y, yDistance = Math.abs(yOffset);
 	// atan2 is relative to x axis, our stick angle is relative to y axis.  This madness must be fixed -- returning relative to the y axis for now.
-	return this.simplifyRadians(Math.atan2(yOffset, xOffset) + Math.PI / 2);
+	return this.hockey.rink.simplifyRadians(Math.atan2(yOffset, xOffset) + Math.PI / 2);
 };
 
 Player.prototype.advance = function(x, y) {
