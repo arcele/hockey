@@ -36,7 +36,7 @@
 				if(!selectedPlayer.animation || !selectedPlayer.animation.isRunning()) {
 					selectedPlayer.move(selectedPlayer.location.x, lastMovement.y);
 				}
-				selectedPlayer.rotate((lastMovement.x - secondLastMovement.x) / 10);
+				selectedPlayer.rotate((lastMovement.x - secondLastMovement.x) / 4);
 				if(selectedPlayer.collisionType != null) {
 					if(selectedPlayer.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
 						var shotAngle = (selectedPlayer.stickAngle + (Math.PI / 2 * selectedPlayer.rotationDirection));
