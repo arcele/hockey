@@ -40,7 +40,7 @@
 				if(selectedPlayer.collisionType != null) {
 					if(selectedPlayer.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
 						var shotAngle = (selectedPlayer.stickAngle + (Math.PI / 2 * selectedPlayer.rotationDirection));
-						if(console) console.log("Shot  :" + shotAngle);
+						if(console) console.log("Puck was:" + selectedPlayer.collisionDirection + " of stick -- Shot  :" + shotAngle);
 						_hockey.puck.shoot(8, shotAngle);
 
 					} else if(selectedPlayer.collisionType == Player.CONSTANTS.collisionTypes.BUMP) {

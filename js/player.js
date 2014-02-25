@@ -15,6 +15,7 @@ function Player(hockey, team, positionId) {
     this.selected = false;
     this.collided = false;
     this.collisionType = null;
+    this.collisionDirection = null;
     this.rotationDirection = null;
     this.render();
 }
@@ -111,6 +112,11 @@ Player.prototype.detectCollision = function() {
 		var puckAngle = this.getPuckAngle();
 		if(Math.abs(puckAngle - this.stickAngle) < Player.CONSTANTS.collisionTolerance) { // If the stick is reasonably close
 			this.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
+			if(puckAngle - this.stickAngle < 0) {
+				this.collisionDirection = 'CCW'; // Puck is CCW from Stick
+			} else {
+				this.collisionDirection = 'CW'; // Puck is CW from Stick
+			}
 		}
 	}
 };
