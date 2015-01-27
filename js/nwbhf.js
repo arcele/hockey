@@ -16,6 +16,19 @@
 		Hockey.teams.push(new Team(Hockey, i, playersLayer));
 	}
 
+	Hockey.detectCollisions = function() {
+		var playerCollisions = [];
+		for(i = 0; i < this.teams.length; i++) {
+			for(j = 0; j < this.teams[i].players.length; j++) {
+				playerCollision = this.teams[i].players[j].detectCollision();
+				if(playerCollision && playerCollision.collisionType) {
+					playerCollisions.push(playerCollision);
+				}
+			}
+		}
+		return playerCollisions.length > 0 ? playerCollisions : null;		
+	}
+
 	Hockey.stage.add(playersLayer);
 	var _hockey = Hockey;
 	Hockey.stage.on('mousemove touchmove', function(event) {
@@ -34,17 +47,20 @@
 				selectedPlayer.rotate((x - _hockey.lastPosition.x) / 6);
 			}
 
-			if(selectedPlayer.collisionType != null) {
-				if(selectedPlayer.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
-					var shotAngle = (selectedPlayer.stickAngle + (Math.PI / 2 * selectedPlayer.rotationDirection));
-					if(console) console.log("Puck was:" + selectedPlayer.collisionDirection + " of stick -- Shot  :" + shotAngle);
-					_hockey.puck.shoot(8, shotAngle);
-				} else if(selectedPlayer.collisionType == Player.CONSTANTS.collisionTypes.BUMP) {
+			var collisions = _hockey.detectCollisions();
+			if(collisions != null) {
+				for(var i = 0; i < collisions.length; i++) {
+					var collision = collisions[i];
+					if(collision.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
+						var shotAngle = (collision.player.stickAngle + (Math.PI / 2 * collision.player.rotationDirection));
+						if(console) console.log("Puck was:" + collision.collisionDirection + " of stick -- Shot  :" + shotAngle);
+						_hockey.puck.shoot(8, shotAngle);	
+					} else if(collision.collisionType == Player.CONSTANTS.collisionTypes.BUMP) {
 						// Body Stroke direction should depend on the angle where the puck hits the circle of the body.  This is just a placeholder
-					if(console) console.log("Bump");
-					_hockey.puck.shoot(3, Math.random() * Math.PI * 2); 
+						if(console) console.log("Bump");
+						_hockey.puck.shoot(3, Math.random() * Math.PI * 2);
+					}
 				}
-				selectedPlayer.resetCollisions();
 			}
 		}
 		_hockey.lastPosition = {x: x, y: y};
