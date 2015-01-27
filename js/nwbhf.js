@@ -17,7 +17,6 @@
 	}
 
 	Hockey.stage.add(playersLayer);
-	
 	var _hockey = Hockey;
 	Hockey.stage.on('mousemove touchmove', function(event) {
 		var eventPosition = this.getPointerPosition();
@@ -31,7 +30,10 @@
 				// Move vertically only 
 				selectedPlayer.move(selectedPlayer.location.x, y);
 			}
-			selectedPlayer.rotate((x - _hockey.lastPosition.x) / 6);
+			if(Math.abs(x - _hockey.lastPosition.x) > 1) {
+				selectedPlayer.rotate((x - _hockey.lastPosition.x) / 6);
+			}
+
 			if(selectedPlayer.collisionType != null) {
 				if(selectedPlayer.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
 					var shotAngle = (selectedPlayer.stickAngle + (Math.PI / 2 * selectedPlayer.rotationDirection));
