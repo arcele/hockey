@@ -24,6 +24,7 @@
 				if(playerCollision && playerCollision.collisionType) {
 					playerCollisions.push(playerCollision);
 				}
+				this.teams[i].players[j].rotationSpeed = 0; // Reset the rotation speed after every detection, I think
 			}
 		}
 		return playerCollisions.length > 0 ? playerCollisions : null;		
@@ -53,8 +54,8 @@
 					var collision = collisions[i];
 					if(collision.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
 						var shotAngle = (collision.player.stickAngle + (Math.PI / 2 * collision.player.rotationDirection));
-						if(console) console.log("Puck was:" + collision.collisionDirection + " of stick -- Shot  :" + shotAngle);
-						_hockey.puck.shoot(8, shotAngle);	
+						var shotSpeed = Math.min( 10, (collision.rotationSpeed + _hockey.puck.velocity) * 3 + 1)
+						_hockey.puck.shoot(shotSpeed, shotAngle);
 					} else if(collision.collisionType == Player.CONSTANTS.collisionTypes.BUMP) {
 						// Body Stroke direction should depend on the angle where the puck hits the circle of the body.  This is just a placeholder
 						if(console) console.log("Bump");

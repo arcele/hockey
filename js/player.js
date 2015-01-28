@@ -14,6 +14,7 @@ function Player(hockey, team, positionId) {
     this.stickAngle = Math.random() * Math.PI * 2;
     this.selected = false;
     this.rotationDirection = null;
+    this.rotationSpeed = 0;
     this.render();
 }
 
@@ -91,11 +92,11 @@ Player.prototype.move = function(x,y) {
 
 Player.prototype.rotate = function(rad) {
     // This would be neater as an animation
+	this.rotationSpeed = Math.min(Math.abs(rad), 7); // maximum rotation speed of 7 radians ~about 1 full circle
 	var newRotation = this.hockey.rink.simplifyRadians(this.player.group.getRotation() + rad);
 	this.rotationDirection = (rad > 0)? Player.CONSTANTS.rotationDirection.CLOCKWISE : Player.CONSTANTS.rotationDirection.COUNTER_CLOCKWISE;
 	this.player.group.setRotation(newRotation);
 	this.stickAngle = newRotation;
-	this.detectCollision();
 };
 
 Player.prototype.detectCollision = function() {
@@ -108,6 +109,7 @@ Player.prototype.detectCollision = function() {
 	} else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
 		// Potential for Shot, depending on stick angle (ignore possibility of puck going between stick & body for now)
 		var puckAngle = this.getPuckAngle();
+		collision.rotationSpeed = this.rotationSpeed;
 		if(Math.abs(puckAngle - this.stickAngle) < Player.CONSTANTS.collisionTolerance) { // If the stick is reasonably close
 			collision.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
 			if(puckAngle - this.stickAngle < 0) {
