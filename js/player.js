@@ -43,6 +43,18 @@ Player.prototype.render = function() {
 	});
     this.player.group.add(this.player.body);
 
+	this.player.numeral = new Kinetic.Text({
+		fontSize:this.bodyRadius * 2,
+		x:-8,
+		y:-8,
+		width:this.bodyRadius * 2,
+		align:'center',
+		text:this.position.positionId,
+		fill:'black',
+		fontStyle: 'bold'
+	});
+    this.player.group.add(this.player.numeral);
+
     if(this.position.hasStick) {
         var stickStart = this.bodyRadius / 2 + this.stickReach;
         this.player.stick = new Kinetic.Line({
