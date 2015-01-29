@@ -46,7 +46,7 @@ Puck.prototype.advance = function() {
     this.location.y = this.location.y + this.velocity * Math.cos(this.angle);
 
     if(this.velocity > 0) {
-        this.velocity -= .1; // Drag
+        this.velocity -= .05; // Drag
     } else {
         this.shot.stop();
     }
@@ -76,7 +76,12 @@ Puck.prototype.deflect = function(deflectionAngle, rotationDirection, rotationSp
 	// Add the angle of deflection
 	this.angle += deflectionAngle;
 	// Factor in rotation direction
-	this.angle *= rotationDirection;
+
+    // Rotation Direction isn't really what matters most.  What matters is which surface of the stick is hit.
+	// This should come through with the deflectionAngle.
+
+	//this.angle *= rotationDirection;
+
 	// Simplify
 	this.angle = this.hockey.rink.simplifyRadians(this.angle);
 	if(console) console.log('deflection');

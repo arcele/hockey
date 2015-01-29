@@ -45,7 +45,7 @@
 				selectedPlayer.move(selectedPlayer.location.x, y);
 			}
 			if(Math.abs(x - _hockey.lastPosition.x) > 1) {
-				selectedPlayer.rotate((x - _hockey.lastPosition.x) / 6);
+				selectedPlayer.rotate((x - _hockey.lastPosition.x) / 15);
 			}
 
 			var collisions = _hockey.detectCollisions();
@@ -55,10 +55,11 @@
 					if(collision.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
 						var shotAngle = (collision.player.stickAngle + (Math.PI / 2 * collision.player.rotationDirection));
 						var shotSpeed = Math.min( 10, (collision.rotationSpeed + _hockey.puck.velocity) * 3 + 1)
+						if(console) console.log("Shot by player ", collision.player.position.positionId, " on team ", collision.player.team.id, shotSpeed, shotAngle);
 						_hockey.puck.shoot(shotSpeed, shotAngle);
 					} else if(collision.collisionType == Player.CONSTANTS.collisionTypes.BUMP) {
 						// Body Stroke direction should depend on the angle where the puck hits the circle of the body.  This is just a placeholder
-						if(console) console.log("Bump");
+						if(console) console.log("Bump off player", collision.player.position.positionId, " on team ", collision.player.team.id);
 						_hockey.puck.shoot(3, Math.random() * Math.PI * 2);
 					}
 				}
