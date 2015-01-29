@@ -193,7 +193,7 @@ Player.CONSTANTS = {
             "SHOT": 1,
             "BUMP": 2
     },
-    collisionTolerance : .32, // Basically equiv to the size of the puck
+    collisionTolerance : .175, // Basically equiv to the size of the puck
 
     rotationDirection: {
     	"COUNTER_CLOCKWISE": -1,
