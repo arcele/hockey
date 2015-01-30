@@ -5,7 +5,7 @@ function Player(hockey, team, positionId) {
     this.bodyRadius = 8;
     this.stickReach = 7;
     this.stickLength = 15;
-    this.speed = 1;
+    this.speed = 1;  // "Skating Speed" -- Speed with which the player is capable of moving
     this.layer = team.layer;
     this.location = {
 	    x: this.startingPoint('x'),
@@ -15,6 +15,7 @@ function Player(hockey, team, positionId) {
     this.selected = false;
     this.rotationDirection = null;
     this.rotationSpeed = 0;
+    this.movementSpeed = 0;
     this.render();
 }
 
@@ -112,7 +113,7 @@ Player.prototype.rotate = function(rad) {
 };
 
 Player.prototype.detectCollision = function() {
-	var collision = {player: this};
+	var collision = {player: this, rotationSpeed: this.rotationSpeed, movementSpeed: this.movementSpeed };
 	var xOffset = this.location.x - this.hockey.puck.location.x, xDistance = Math.abs(xOffset);
 	var yOffset = this.location.y - this.hockey.puck.location.y, yDistance = Math.abs(yOffset);
 	if(xDistance < this.bodyRadius && yDistance < this.bodyRadius) {
@@ -121,7 +122,6 @@ Player.prototype.detectCollision = function() {
 	} else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
 		// Potential for Shot, depending on stick angle (ignore possibility of puck going between stick & body for now)
 		var puckAngle = this.getPuckAngle();
-		collision.rotationSpeed = this.rotationSpeed;
 		if(Math.abs(puckAngle - this.stickAngle) < Player.CONSTANTS.collisionTolerance) { // If the stick is reasonably close
 			collision.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
 			if(puckAngle - this.stickAngle < 0) {
@@ -131,7 +131,14 @@ Player.prototype.detectCollision = function() {
 			}
 		}
 	}
+	this.resetCollisionData();
 	return collision;
+};
+
+Player.prototype.resetCollisionData = function() {
+	// After detecting a player collision, reset all relevant collision data 
+	this.rotationSpeed = 0;
+	this.movementSpeed = 0;
 };
 
 Player.prototype.getPuckAngle = function() {
@@ -161,8 +168,12 @@ Player.prototype.advance = function(x, y) {
         this.stopMovement();
         return false;
     }
+    this.movementSpeed = this.speed;
     this.player.group.setX(this.location.x + this.hockey.rink.offset.x);
     this.player.group.setY(this.location.y + this.hockey.rink.offset.y);
+    
+    // Should we detect collisions for all players here? 
+    
     this.advance(x,y);
 };
 
