@@ -71,7 +71,7 @@
 				selectedPlayer.move(selectedPlayer.location.x, y);
 			}
 			if(Math.abs(x - _hockey.lastPosition.x) > 1) {
-				selectedPlayer.rotate((x - _hockey.lastPosition.x) / 15);
+				selectedPlayer.rotate( Math.max(5, x - _hockey.lastPosition.x) / 10);
 			}
 
 			_hockey.handleCollisions();
