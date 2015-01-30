@@ -37,18 +37,20 @@
 				var collision = collisions[i];
 				if(collision.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
 					var shotAngle = (collision.player.stickAngle + (Math.PI / 2 * collision.player.rotationDirection));
-					// Important factors for determining shot speed:
-					// this.puck.velocity
-					// collision.rotationSpeed
-					// collision.movementSpeed
-					// TO DO: Fix shot speed
-					var shotSpeed = Math.min( 10, (collision.rotationSpeed + _hockey.puck.velocity) * 3 + 1)
-					if(console) console.log("Shot by player ", collision.player.position.positionId, " on team ", collision.player.team.id, shotSpeed, shotAngle);
-					this.puck.shoot(shotSpeed, shotAngle);
+					var shotSpeed = Math.min( 10, (collision.rotationSpeed + _hockey.puck.velocity + collision.rotationSpeed) * 2 + 1)
+					if(this.puck.velocity == 0) { // stationary puck
+						shotSpeed = 3 * collision.rotationSpeed + 2 * collision.movementSpeed;
+					} else if ( Math.abs(collision.movementSpeed) + collision.rotationSpeed == 0) { // stationary player
+						shotSpeed = this.puck.velocity * .2;
+					}
+					if(shotSpeed > 1) {  // don't bother trying to shoot w/o velocity					
+						this.puck.shoot(shotSpeed, shotAngle);
+					}
 				} else if(collision.collisionType == Player.CONSTANTS.collisionTypes.BUMP) {
 					// Body Stroke direction should depend on the angle where the puck hits the circle of the body.  This is just a placeholder
 					if(console) console.log("Bump off player", collision.player.position.positionId, " on team ", collision.player.team.id);
-					this.puck.shoot(3, Math.random() * Math.PI * 2);
+					var bumpSpeed = Math.max(2, this.puck.velocity * .2);
+					this.puck.shoot(bumpSpeed, Math.random() * Math.PI * 2);
 				}
 			}
 		}
