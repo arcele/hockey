@@ -171,9 +171,7 @@ Player.prototype.advance = function(x, y) {
     this.movementSpeed = this.speed;
     this.player.group.setX(this.location.x + this.hockey.rink.offset.x);
     this.player.group.setY(this.location.y + this.hockey.rink.offset.y);
-    
-    // Should we detect collisions for all players here? 
-    
+
     this.advance(x,y);
 };
 

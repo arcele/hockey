@@ -66,6 +66,7 @@ Puck.prototype.advance = function() {
         this.location.y = Math.abs(this.location.y);
         this.deflect(Math.PI, 1, 0);
     }
+    this.hockey.handleCollisions();
     this.puck.setX(this.location.x + this.hockey.rink.offset.x);
     this.puck.setY(this.location.y + this.hockey.rink.offset.y);
 };
