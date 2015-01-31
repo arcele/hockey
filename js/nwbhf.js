@@ -37,11 +37,11 @@
 				var collision = collisions[i];
 				if(collision.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
 					var shotAngle = (collision.player.stickAngle + (Math.PI / 2 * collision.player.rotationDirection));
-					var shotSpeed = Math.min( 10, (collision.rotationSpeed + _hockey.puck.velocity + collision.rotationSpeed) * 2 + 1)
-					if(this.puck.velocity == 0) { // stationary puck
-						shotSpeed = 5 * collision.rotationSpeed + collision.movementSpeed;
-					} else if ( Math.abs(collision.movementSpeed) + collision.rotationSpeed == 0) { // stationary player
+					var shotSpeed = 5 * collision.rotationSpeed + collision.movementSpeed; // init value for a stationary puck
+					if ( Math.abs(collision.movementSpeed) + collision.rotationSpeed == 0) { // stationary player
 						shotSpeed = this.puck.velocity * .2;
+					} else if (this.puck.velocity > 0) { // moving puck, stationary player
+						var shotSpeed = Math.min( 10, (collision.rotationSpeed + _hockey.puck.velocity + collision.rotationSpeed) * 2 + 1); // 
 					}
 					if(shotSpeed > 1) {  // don't bother trying to shoot w/o velocity					
 						if(console) console.log('Shot by Player', collision.player.position.positionId, ' on team ', collision.player.team.id);
