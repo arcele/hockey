@@ -48,6 +48,7 @@ Puck.prototype.advance = function() {
     if(this.velocity > 0) {
         this.velocity -= .05; // Drag
     } else {
+    	this.velocity = 0;
         this.shot.stop();
     }
 
