@@ -74,8 +74,12 @@
 				// Move vertically only 
 				selectedPlayer.move(selectedPlayer.location.x, y);
 			}
-			if(Math.abs(x - _hockey.lastPosition.x) > 1) {
-				selectedPlayer.rotate( Math.max(5, x - _hockey.lastPosition.x) / 10);
+			if(Math.abs(x - _hockey.lastPosition.x) > 1) { // Don't rotate on slight deviations
+				var rotationRads = (x - _hockey.lastPosition.x)
+				if(Math.abs(rotationRads) < 5) { // rotate at least the 5 px of movement worth
+					rotationRads = rotationRads < 0 ? -5 : 5;
+				}
+				selectedPlayer.rotate( rotationRads / 10);
 			}
 
 			_hockey.handleCollisions();
