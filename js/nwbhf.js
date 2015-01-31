@@ -52,8 +52,9 @@
 					var bumpSpeed = Math.max(1.2, this.puck.velocity * .3);
 					if(console) console.log("Bump off player", collision.player.position.positionId, " on team ", collision.player.team.id, collision.deflectionAngle, this.puck.velocity, bumpSpeed);
 					// move the puck out of the range of another bump before moving to prevent the dreaded double/triple/infiniti-bump
-					this.puck.puck.setX(collision.newX);
-					this.puck.puck.setY(collision.newY);
+					// new x and y positions are out of wack, let's revisit this
+					//this.puck.puck.setX(collision.newX);
+					//this.puck.puck.setY(collision.newY);
 					this.puck.shoot(bumpSpeed, collision.deflectionAngle);
 				}
 			}

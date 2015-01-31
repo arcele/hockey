@@ -8,7 +8,7 @@ function Puck (hockey) {
     this.stage = hockey.stage;
     this.velocity = 0.0;
     this.angle = 0.0;
-    this.location = { x:110, y:260 };
+    this.initialLocation = { x:110, y:260 }; // this should be a constant
     this.shot = null;
     this.layer = new Kinetic.Layer({ id: 'puck'});
     this.render();
@@ -17,8 +17,8 @@ function Puck (hockey) {
 Puck.prototype.render = function() {
     this.puck = new Kinetic.Circle( // Hockey.puck.puck is probably a terrible name
 	{
-	    x: this.location.x + this.hockey.rink.offset.x,
-	    y: this.location.y + this.hockey.rink.offset.y,
+	    x: this.initialLocation.x + this.hockey.rink.offset.x,
+	    y: this.initialLocation.y + this.hockey.rink.offset.y,
 	    radius: 3,
 	    fill: '#111',
 	    stroke: '#000'
@@ -41,9 +41,17 @@ Puck.prototype.shoot = function(velocity, angle) {
     this.shot.start();
 };
 
+Puck.prototype.getLocation = function() {
+	// Returns the x-y location of the puck relative to the rink.
+	return {x: this.puck.getX() - this.hockey.rink.offset.x, y: this.puck.getY() - this.hockey.rink.offset.y };
+}
+
 Puck.prototype.advance = function() {
-    this.location.x = this.location.x + this.velocity * Math.sin(this.angle);
-    this.location.y = this.location.y + this.velocity * Math.cos(this.angle);
+    // Why are we tracking the location manually, when it's automatically on the puck.puck??
+    var puckLocation = this.getLocation();
+
+    var newX = puckLocation.x + this.velocity * Math.sin(this.angle);
+    var newY = puckLocation.y + this.velocity * Math.cos(this.angle);
 
     if(this.velocity > 0) {
         this.velocity -= .05; // Drag
@@ -52,24 +60,26 @@ Puck.prototype.advance = function() {
         this.shot.stop();
     }
 
-    if(this.location.x > 220) {
-        this.location.x = 220 - (this.location.x - 220);
+
+    if(puckLocation.x > 220) {
+        newX = 220 - (puckLocation.x - 220);
         this.deflect(0, 1, 0);
-    } else if(this.location.x < 0) {
-        this.location.x = Math.abs(this.location.x);
+    } else if(puckLocation.x < 0) {
+        newX = Math.abs(puckLocation.x);
         this.deflect(0, 1, 0);
     }
 
-    if(this.location.y > 520) {
-        this.location.y = 520 - (this.location.y - 520);
+    if(puckLocation.y > 520) {
+        newY = 520 - (puckLocation.y - 520);
         this.deflect(Math.PI, 1, 0);
-    } else if (this.location.y < 0) {
-        this.location.y = Math.abs(this.location.y);
+    } else if (puckLocation.y < 0) {
+        newY = Math.abs(puckLocation.y);
         this.deflect(Math.PI, 1, 0);
     }
     this.hockey.handleCollisions();
-    this.puck.setX(this.location.x + this.hockey.rink.offset.x);
-    this.puck.setY(this.location.y + this.hockey.rink.offset.y);
+    this.puck.setX(newX + this.hockey.rink.offset.x);
+    this.puck.setY(newY + this.hockey.rink.offset.y);
+
 };
 
 Puck.prototype.deflect = function(deflectionAngle, rotationDirection, rotationSpeed) {

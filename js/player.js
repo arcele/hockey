@@ -114,27 +114,28 @@ Player.prototype.rotate = function(rad) {
 
 Player.prototype.detectCollision = function() {
 	var collision = {player: this, rotationSpeed: this.rotationSpeed, movementSpeed: this.movementSpeed };
-	var xOffset = this.location.x - this.hockey.puck.location.x, xDistance = Math.abs(xOffset);
-	var yOffset = this.location.y - this.hockey.puck.location.y, yDistance = Math.abs(yOffset);
+	var puckLocation = this.hockey.puck.getLocation();
+	var xOffset = this.location.x - puckLocation.x, xDistance = Math.abs(xOffset);
+	var yOffset = this.location.y - puckLocation.y, yDistance = Math.abs(yOffset);
 	if(xDistance < this.bodyRadius && yDistance < this.bodyRadius) {
 		// Body Bump
 		collision.collisionType = Player.CONSTANTS.collisionTypes.BUMP;
 		if(xOffset > 0 && yOffset > 0) {
 			collision.deflectionAngle = 7 * Math.PI / 4;
-			collision.newX = this.hockey.puck.location.x + this.bodyRadius
-			collision.newY = this.hockey.puck.location.y + this.bodyRadius
+			collision.newX = puckLocation.x + this.bodyRadius
+			collision.newY = puckLocation.y + this.bodyRadius
 		} else if(xOffset > 0 && yOffset < 0) {
 			collision.deflectionAngle = 5 * Math.PI / 4;
-			collision.newX = this.hockey.puck.location.x + this.bodyRadius;
-			collision.newY = this.hockey.puck.location.y - this.bodyRadius;
+			collision.newX = puckLocation.x + this.bodyRadius;
+			collision.newY = puckLocation.y - this.bodyRadius;
 		} else if (xOffset < 0 && yOffset < 0) {
 			collision.deflectionAngle = 3 * Math.PI / 4;
-			collision.newX = this.hockey.puck.location.x - this.bodyRadius;
-			collision.newY = this.hockey.puck.location.y - this.bodyRadius;
+			collision.newX = puckLocation.x - this.bodyRadius;
+			collision.newY = puckLocation.y - this.bodyRadius;
 		} else {
 			collision.deflectionAngle = Math.PI / 4;
-			collision.newX = this.hockey.puck.location.x - this.bodyRadius;
-			collision.newY = this.hockey.puck.location.y + this.bodyRadius;
+			collision.newX = puckLocation.x - this.bodyRadius;
+			collision.newY = puckLocation.y + this.bodyRadius;
 		}
 		collision.deflectionAngle-= Math.PI / 2;
 	} else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
@@ -160,8 +161,9 @@ Player.prototype.resetCollisionData = function() {
 };
 
 Player.prototype.getPuckAngle = function() {
-	var xOffset = this.hockey.puck.location.x - this.location.x, xDistance = Math.abs(xOffset);
-	var yOffset = this.hockey.puck.location.y - this.location.y, yDistance = Math.abs(yOffset);
+	var puckLocation = this.hockey.puck.getLocation();
+	var xOffset = puckLocation.x - this.location.x, xDistance = Math.abs(xOffset);
+	var yOffset = puckLocation.y - this.location.y, yDistance = Math.abs(yOffset);
 	// atan2 is relative to x axis, our stick angle is relative to y axis.  This madness must be fixed -- returning relative to the y axis for now.
 	return this.hockey.rink.simplifyRadians(Math.atan2(yOffset, xOffset) + Math.PI / 2);
 };
