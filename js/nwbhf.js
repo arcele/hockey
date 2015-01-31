@@ -49,9 +49,12 @@
 					}
 				} else if(collision.collisionType == Player.CONSTANTS.collisionTypes.BUMP) {
 					// Body Stroke direction should depend on the angle where the puck hits the circle of the body.  This is just a placeholder
-					if(console) console.log("Bump off player", collision.player.position.positionId, " on team ", collision.player.team.id);
+					if(console) console.log("Bump off player", collision.player.position.positionId, " on team ", collision.player.team.id, collision.deflectionAngle);
 					var bumpSpeed = Math.max(2, this.puck.velocity * .2);
-					this.puck.shoot(bumpSpeed, Math.random() * Math.PI * 2);
+					// move the puck out of the range of another bump before moving to prevent the dreaded double/triple/infiniti-bump
+					this.puck.puck.setX(collision.newX);
+					this.puck.puck.setY(collision.newY);
+					this.puck.shoot(bumpSpeed, collision.deflectionAngle);
 				}
 			}
 		}
