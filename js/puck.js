@@ -33,11 +33,11 @@ Puck.prototype.shoot = function(velocity, angle) {
     this.velocity = velocity? velocity : Math.random() * 10;
     this.angle = angle? angle : Math.random() * 2 * Math.PI;
     var _this = this;
-    this.shot = new Kinetic.Animation(
-	function(frame) {
-	        _this.advance();
-        }, _this.layer
-    );
+	this.shot = new Kinetic.Animation(
+		function(frame) {
+			_this.advance();
+		}, _this.layer
+	);
     this.shot.start();
 };
 
