@@ -89,4 +89,8 @@
 		}
 		_hockey.lastPosition = {x: x, y: y};
 	});
+
+	// assume 600px height rink for meow
+	var scale = window.innerHeight / 600
+	console.log(document.getElementById("zoom-wrapper").style["-webkit-transform"] = "scale("+scale + ")");
 })();
