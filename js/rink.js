@@ -1,6 +1,7 @@
 
 function Rink (hockey) {
 	this.hockey = hockey;
+//	this.offset = { x:5, y:25 }; 
 	this.offset = { x: 200, y: 75 };
 	this.size = { x: 221, y: 520 };
 	this.layer = new Kinetic.Layer({ id: 'rink'});
@@ -28,32 +29,32 @@ Rink.prototype.render = function() {
 
 	// Add Red Line / Blue Lines / Goal Lines -- Proper Scale
 	var redLine = new Kinetic.Line({
-		points: [200, 75 + rinkHeight/2, 200 + rinkWidth, 75 + rinkHeight/2],
+		points: [this.offset.x, this.offset.y + rinkHeight/2, this.offset.x + rinkWidth, this.offset.y + rinkHeight/2],
 		stroke: 'red',
 		dashArray: [5, 1],
 		strokeWidth: 2
 	});
 	this.layer.add(redLine);
 
-	var blueLines = [ 75 + rinkHeight * .375, 75 + rinkHeight * .625 ];
+	var blueLines = [ this.offset.y + rinkHeight * .375, this.offset.y + rinkHeight * .625 ];
 	for (var i = 0; i < blueLines.length; i++) {
-		var blueLine = new Kinetic.Line( { points: [200, blueLines[i], 200 + rinkWidth, blueLines[i]], stroke: 'blue', strokeWidth: 4 } );
+		var blueLine = new Kinetic.Line( { points: [this.offset.x, blueLines[i], this.offset.x + rinkWidth, blueLines[i]], stroke: 'blue', strokeWidth: 4 } );
 		this.layer.add(blueLine);
 	}
 
-	var goalLines = [ (75 + rink.getHeight() * .055), (75 + rink.getHeight() * .945) ];
+	var goalLines = [ (this.offset.y + rink.getHeight() * .055), (this.offset.y + rink.getHeight() * .945) ];
 	for (var i = 0; i < goalLines.length; i++) {
-		var goalLine = new Kinetic.Line( { points: [ 200, goalLines[i], 200 + rinkWidth, goalLines[i]], stroke: 'red', strokeWidth: 2 } );
+		var goalLine = new Kinetic.Line( { points: [ this.offset.x, goalLines[i], this.offset.x + rinkWidth, goalLines[i]], stroke: 'red', strokeWidth: 2 } );
 		this.layer.add(goalLine);
 	}
 
 	// Add Faceoff Circles -- ESTIMATED
 	var circles = [ 
-		{ x: (200 + rinkHeight * .1), y: (75 + rinkHeight * .2) },
-		{ x: (200 + rinkWidth - rinkHeight * .1), y: (75 + rinkHeight * .2) },
-		{ x: (200 + rinkHeight * .1), y: (75 + rinkHeight * .8) },
-		{ x: (200 + rinkWidth - rinkHeight * .1), y: (75 + rinkHeight * .8) },
-		{ x: (200 + rinkWidth/2), y: (75 + rinkHeight / 2), stroke: 'blue' }
+		{ x: (this.offset.x + rinkHeight * .1), y: (this.offset.y + rinkHeight * .2) },
+		{ x: (this.offset.x + rinkWidth - rinkHeight * .1), y: (this.offset.y + rinkHeight * .2) },
+		{ x: (this.offset.x + rinkHeight * .1), y: (this.offset.y + rinkHeight * .8) },
+		{ x: (this.offset.x + rinkWidth - rinkHeight * .1), y: (this.offset.y + rinkHeight * .8) },
+		{ x: (this.offset.x + rinkWidth/2), y: (this.offset.y + rinkHeight / 2), stroke: 'blue' }
 	];
 
 	for(var i = 0; i < circles.length; i++) {
@@ -64,10 +65,10 @@ Rink.prototype.render = function() {
 	}
 
 	// Creases - To Scale
-	var creases = [ {y: 75 + rinkHeight * .055, rotationDeg: 0 }, { y: 75 + rinkHeight * .945, rotationDeg: 180 } ];
+	var creases = [ {y: this.offset.y + rinkHeight * .055, rotationDeg: 0 }, { y: this.offset.y + rinkHeight * .945, rotationDeg: 180 } ];
 
 	for(var i = 0; i < creases.length; i++) {
-		var crease = new Kinetic.Wedge( { x: 200 + rinkWidth / 2, y: creases[i].y, radius: rinkHeight * .04, angleDeg: 180, rotationDeg: creases[i].rotationDeg, strokeWidth: 2, fill: '#aadddd', stroke: 'red' } );
+		var crease = new Kinetic.Wedge( { x: this.offset.x + rinkWidth / 2, y: creases[i].y, radius: rinkHeight * .04, angleDeg: 180, rotationDeg: creases[i].rotationDeg, strokeWidth: 2, fill: '#aadddd', stroke: 'red' } );
 		this.layer.add(crease);
 	}
 
