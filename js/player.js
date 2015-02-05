@@ -137,10 +137,14 @@ Player.prototype.detectCollision = function() {
 			collision.newX = puckLocation.x - this.bodyRadius;
 			collision.newY = puckLocation.y - this.bodyRadius;
 		}
-		collision.deflectionAngle-= Math.PI / 2; // I have no idea what the shot angle base line is.
+		collision.deflectionAngle+= Math.PI / 2; // I have no idea what the shot angle base line is.
 	} else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
 		// Potential for Shot, depending on stick angle (ignore possibility of puck going between stick & body for now)
 		var puckAngle = this.getPuckAngle();
+
+		// Need to improve this by checking the area of the the wedge of the circle between where the stick began and where the stick is now, 
+		// if the puck resides in that area determine the rotation angle of the stick to determine shot's angle
+		
 		if(Math.abs(puckAngle - this.stickAngle) < Player.CONSTANTS.collisionTolerance) { // If the stick is reasonably close
 			collision.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
 			if(puckAngle - this.stickAngle < 0) {
