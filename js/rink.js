@@ -2,7 +2,7 @@
 function Rink (hockey) {
 	this.hockey = hockey;
 	this.offset = { x:5, y:25 }; 
-	this.offset = { x: 200, y: 75 };
+//	this.offset = { x: 200, y: 75 };
 	this.size = { x: 221, y: 520 };
 	this.layer = new Kinetic.Layer({ id: 'rink'});
 	this.render();
@@ -82,7 +82,8 @@ Rink.prototype.render = function() {
 		fill: '#f4f4f4',
 		stroke:'black',
 		strokeWidth:2,
-		cornerRadius:10
+		cornerRadius:10,
+		opacity: .7
 	});
 	bumperText = new Kinetic.Text({
 		x: this.offset.x * 1.1,
@@ -92,15 +93,16 @@ Rink.prototype.render = function() {
 		align:'center',
 		text: 'BUMP',
 		fontSize:35,
-		fill: '#777'
+		fill: 'black'
 	});
 	var _this = this;
 	bumper.on('mouseover touchstart', function() {
 		_this.hockey.puck.shoot(2.5 + Math.random() * 2, (3 / 4 * Math.PI) + Math.random() * 2 * Math.PI);
 	});
 
-	this.layer.add(bumper);
 	this.layer.add(bumperText);
+	this.layer.add(bumper);
+	
 
 	this.hockey.stage.add(this.layer);
 }
