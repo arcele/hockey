@@ -1,7 +1,7 @@
 
 function Rink (hockey) {
 	this.hockey = hockey;
-//	this.offset = { x:5, y:25 }; 
+	this.offset = { x:5, y:25 }; 
 	this.offset = { x: 200, y: 75 };
 	this.size = { x: 221, y: 520 };
 	this.layer = new Kinetic.Layer({ id: 'rink'});
@@ -72,59 +72,29 @@ Rink.prototype.render = function() {
 		this.layer.add(crease);
 	}
 
-	// Bumpers
+
+	// Bumper
 	var bumper = new Kinetic.Rect({
-		x: this.offset.x * .6,
-		y: this.offset.y * 2.75,
-		width:45,
-		height:rinkHeight * .5,
-		fill: '#f4f4f4',
-		stroke: 'black',
-		strokeWidth: 2,
-		cornerRadius: 10
-	});
-	var bumperText = new Kinetic.Text({
-		x: this.offset.x * .6 + 40,
-		y: this.offset.y * 2.75,
-		height:45,
-		width: rinkHeight * .5,
-		align: 'center',
-		text: 'BUMP',
-		fontSize: 35,
-		fill: '#777',
-		rotation: Math.PI / 2
-	});
-
-	var _this = this;
-	bumper.on('mouseover touchstart', function() {
-		_this.hockey.puck.shoot((Math.random() + Math.random() * 3 + 3), Math.random() * 2 * Math.PI);
-	});
-	
-
-
-	this.layer.add(bumper);
-	this.layer.add(bumperText);
-	bumper = new Kinetic.Rect({
-		x: this.offset.x * 1.175 + rinkWidth,
-		y: this.offset.y * 2.75,
-		width:45,
-		height:rinkHeight * .5,
+		x: this.offset.x + rinkWidth - (rinkWidth * .9),
+		y: this.offset.y + rinkHeight + 25,
+		width: rinkWidth * .8,
+		height: 35,
 		fill: '#f4f4f4',
 		stroke:'black',
 		strokeWidth:2,
 		cornerRadius:10
 	});
 	bumperText = new Kinetic.Text({
-		x: this.offset.x * 1.175 + rinkWidth + 5,
-		y: this.offset.y * 6,
-		height:45,
-		width: rinkHeight * .5,
+		x: this.offset.x * 1.1,
+		y: this.offset.y + rinkHeight + 25,
+		width: rinkWidth * .8,
+		height:275,
 		align:'center',
 		text: 'BUMP',
 		fontSize:35,
-		fill: '#777',
-		rotation: 3 * Math.PI / 2
+		fill: '#777'
 	});
+	var _this = this;
 	bumper.on('mouseover touchstart', function() {
 		_this.hockey.puck.shoot(2.5 + Math.random() * 2, (3 / 4 * Math.PI) + Math.random() * 2 * Math.PI);
 	});
