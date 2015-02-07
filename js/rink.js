@@ -86,7 +86,7 @@ Rink.prototype.render = function() {
 		opacity: .7
 	});
 	bumperText = new Kinetic.Text({
-		x: this.offset.x * 1.1,
+		x: this.offset.x + rinkWidth - (rinkWidth * .9),
 		y: this.offset.y + rinkHeight + 25,
 		width: rinkWidth * .8,
 		height:275,
