@@ -143,30 +143,19 @@ Player.prototype.detectCollision = function() {
 		collision.deflectionAngle+= Math.PI / 2; // I have no idea what the shot angle base line is.
 	} else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
 		// Potential for Shot, depending on stick angle (ignore possibility of puck going between stick & body for now)
-		var puckAngle = this.getPuckAngle();
-
-		// Need to improve this by checking the area of the the wedge of the circle between where the stick began and where the stick is now, 
-		// if the puck resides in that area determine the rotation angle of the stick to determine shot's angle
 		
+		var puckAngle = this.getPuckAngle();
 		var angleDelta = puckAngle - this.stickAngle;
 		var prevAngleDelta = puckAngle + this.rotationSpeed - this.stickAngle;
 
 		if(Math.abs(puckAngle - this.stickAngle) < Player.CONSTANTS.collisionTolerance) { // If the stick is on the puck
 			collision.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
-			if(puckAngle - this.stickAngle < 0) {
-				collision.collisionDirection = 'CCW';
-			} else {
-				collision.collisionDirection = 'CW'; // Puck is CW from Stick
-			}
+			// collisionDiretion, CCW means that the puck is CCW from stick
+			collision.collisionDirection = puckAngle - this.stickAngle < 0 ? 'CCW' : 'CW';
 		} else if(angleDelta * prevAngleDelta < 0) {
 			// One value is positive, one is negative, rotation went 'through' puck
-			if(console) console.log('puck jumped?', angleDelta, prevAngleDelta);
 			collision.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
-			if(angleDelta < prevAngleDelta) {
-				collision.collisionDirection = 'CCW';
-			} else {
-				collision.collisionDirection = 'CW';
-			}
+			collision.collisionDirection = angleDelta < prevAngleDelta ? 'CCW' : 'CW';
 		}
 	}
 	this.resetCollisionData();
