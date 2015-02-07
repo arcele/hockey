@@ -105,7 +105,10 @@ Player.prototype.move = function(x,y) {
 
 Player.prototype.rotate = function(rad) {
     // This would be neater as an animation
-	this.rotationSpeed = Math.min(Math.abs(rad), 7); // maximum rotation speed of 7 radians ~about 1 full circle
+    this.rotationSpeed = rad; // maximum rotation speed of 7 radians ~about 1 full circle
+	if(Math.abs(rad) > 7) {
+		this.rotationSpeed = rad > 0 ? 7 : -7;
+	}
 	var newRotation = this.hockey.rink.simplifyRadians(this.player.group.getRotation() + rad);
 	this.rotationDirection = (rad > 0)? Player.CONSTANTS.rotationDirection.CLOCKWISE : Player.CONSTANTS.rotationDirection.COUNTER_CLOCKWISE;
 	this.player.group.setRotation(newRotation);
@@ -145,12 +148,24 @@ Player.prototype.detectCollision = function() {
 		// Need to improve this by checking the area of the the wedge of the circle between where the stick began and where the stick is now, 
 		// if the puck resides in that area determine the rotation angle of the stick to determine shot's angle
 		
-		if(Math.abs(puckAngle - this.stickAngle) < Player.CONSTANTS.collisionTolerance) { // If the stick is reasonably close
+		var angleDelta = puckAngle - this.stickAngle;
+		var prevAngleDelta = puckAngle + this.rotationSpeed - this.stickAngle;
+
+		if(Math.abs(puckAngle - this.stickAngle) < Player.CONSTANTS.collisionTolerance) { // If the stick is on the puck
 			collision.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
 			if(puckAngle - this.stickAngle < 0) {
 				collision.collisionDirection = 'CCW';
 			} else {
 				collision.collisionDirection = 'CW'; // Puck is CW from Stick
+			}
+		} else if(angleDelta * prevAngleDelta < 0) {
+			// One value is positive, one is negative, rotation went 'through' puck
+			if(console) console.log('puck jumped?', angleDelta, prevAngleDelta);
+			collision.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
+			if(angleDelta < prevAngleDelta) {
+				collision.collisionDirection = 'CCW';
+			} else {
+				collision.collisionDirection = 'CW';
 			}
 		}
 	}
