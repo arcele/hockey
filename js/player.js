@@ -121,29 +121,27 @@ Player.prototype.detectCollision = function() {
 	var xOffset = puckLocation.x - this.location.x, xDistance = Math.abs(xOffset);
 	var yOffset = this.location.y - puckLocation.y, yDistance = Math.abs(yOffset);
 	if(xDistance < this.bodyRadius && yDistance < this.bodyRadius) {
-		// Body Bump
+		// Body Bump -- 0 Angle is the postive x-axis, always bouce diagonally 
 		collision.collisionType = Player.CONSTANTS.collisionTypes.BUMP;
 		if(xOffset > 0 && yOffset > 0) { // q1
-			collision.deflectionAngle = Math.PI / 4;
+			collision.deflectionAngle = 7 * Math.PI / 4;
 			collision.newX = puckLocation.x + this.bodyRadius
 			collision.newY = puckLocation.y - this.bodyRadius
 		} else if(xOffset > 0 && yOffset < 0) { // q2
-			collision.deflectionAngle = 3 * Math.PI / 4;
+			collision.deflectionAngle = Math.PI / 4;
 			collision.newX = puckLocation.x + this.bodyRadius;
 			collision.newY = puckLocation.y + this.bodyRadius;
 		} else if (xOffset < 0 && yOffset < 0) {
-			collision.deflectionAngle = 5 * Math.PI / 4;
+			collision.deflectionAngle = 3 * Math.PI / 4;
 			collision.newX = puckLocation.x - this.bodyRadius;
 			collision.newY = puckLocation.y + this.bodyRadius;
 		} else {
-			collision.deflectionAngle = 7 * Math.PI / 4;
+			collision.deflectionAngle = 5 * Math.PI / 4;
 			collision.newX = puckLocation.x - this.bodyRadius;
 			collision.newY = puckLocation.y - this.bodyRadius;
 		}
-		collision.deflectionAngle+= Math.PI / 2; // I have no idea what the shot angle base line is.
 	} else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
 		// Potential for Shot, depending on stick angle (ignore possibility of puck going between stick & body for now)
-		
 		var puckAngle = this.getPuckAngle();
 		var angleDelta = puckAngle - this.stickAngle;
 		var prevAngleDelta = puckAngle + this.rotationSpeed - this.stickAngle;
