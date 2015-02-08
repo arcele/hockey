@@ -146,14 +146,15 @@ Player.prototype.detectCollision = function() {
 		var angleDelta = puckAngle - this.stickAngle;
 		var prevAngleDelta = puckAngle + this.rotationSpeed - this.stickAngle;
 
-		if(Math.abs(puckAngle - this.stickAngle) < Player.CONSTANTS.collisionTolerance) { // If the stick is on the puck
+		if(angleDelta * prevAngleDelta < 0) {
+			// One value is positive, one is negative, swinging shot
+			collision.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
+			collision.collisionDirection = angleDelta < prevAngleDelta ? 'CCW' : 'CW';
+		} else if(Math.abs(puckAngle - this.stickAngle) < Player.CONSTANTS.collisionTolerance) { 
+			// If the stick is on the puck
 			collision.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
 			// collisionDiretion, CCW means that the puck is CCW from stick
 			collision.collisionDirection = puckAngle - this.stickAngle < 0 ? 'CCW' : 'CW';
-		} else if(angleDelta * prevAngleDelta < 0) {
-			// One value is positive, one is negative, rotation went 'through' puck
-			collision.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
-			collision.collisionDirection = angleDelta < prevAngleDelta ? 'CCW' : 'CW';
 		}
 	}
 	this.resetCollisionData();
