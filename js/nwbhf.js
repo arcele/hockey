@@ -1,20 +1,27 @@
 (function () {
 	// Commenting out proper scoping for console access     var Hockey = {};
 	Hockey = {};
+
+	// Create Stage
 	Hockey.stage = new Kinetic.Stage({
 		container: 'container',
 		width:235,
 		height:550
 	});
 
-	Hockey.lastPosition = { x: 0, y: 0 };
+	// Last mouse position captured by event handlers
+	Hockey.lastPosition = { x: 0, y: 0 }; 
+	
 	Hockey.rink = new Rink(Hockey);
-	Hockey.puck = new Puck(Hockey);
+	
 	Hockey.teams = [];
 	var playersLayer = new Kinetic.Layer( {id: 'players'} );
 	for(var i = 1; i <= 2; ++i) {
 		Hockey.teams.push(new Team(Hockey, i, playersLayer));
 	}
+	Hockey.stage.add(playersLayer);
+	
+	Hockey.puck = new Puck(Hockey);
 
 	Hockey.detectCollisions = function() {
 		var playerCollisions = [];
@@ -62,7 +69,7 @@
 		}
 	}
 
-	Hockey.stage.add(playersLayer);
+	
 	var _hockey = Hockey;
 	Hockey.stage.on('mousemove touchmove', function(event) {
 		var eventPosition = this.getPointerPosition();
