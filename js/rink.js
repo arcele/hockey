@@ -42,9 +42,9 @@ Rink.prototype.render = function() {
 		this.layer.add(blueLine);
 	}
 
-	var goalLines = [ (this.offset.y + rink.getHeight() * .055), (this.offset.y + rink.getHeight() * .945) ];
-	for (var i = 0; i < goalLines.length; i++) {
-		var goalLine = new Kinetic.Line( { points: [ this.offset.x, goalLines[i], this.offset.x + rinkWidth, goalLines[i]], stroke: 'red', strokeWidth: 2 } );
+	this.goalLines = [ (this.offset.y + rink.getHeight() * .055), (this.offset.y + rink.getHeight() * .945) ];
+	for (var i = 0; i < this.goalLines.length; i++) {
+		var goalLine = new Kinetic.Line( { points: [ this.offset.x, this.goalLines[i], this.offset.x + rinkWidth, this.goalLines[i]], stroke: 'red', strokeWidth: 2 } );
 		this.layer.add(goalLine);
 	}
 

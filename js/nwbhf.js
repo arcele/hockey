@@ -25,6 +25,7 @@
 
 	Hockey.detectCollisions = function() {
 		var playerCollisions = [];
+		var puckLocation = this.puck.getLocation(); // We should pass this puck location along for all collision detection, why get this object's location a billion times?
 		for(i = 0; i < this.teams.length; i++) {
 			for(j = 0; j < this.teams[i].players.length; j++) {
 				playerCollision = this.teams[i].players[j].detectCollision();
@@ -34,6 +35,14 @@
 				this.teams[i].players[j].rotationSpeed = 0; // Reset the rotation speed after every detection, I think
 			}
 		}
+		// Detect Goals
+		for(var i = 0; i < this.rink.goalLines.length; i++) {
+			//console.log(Math.abs(puckLocation.y - this.rink.goalLines[i] - this.rink.offset.x));
+			if(Math.abs(puckLocation.y - this.rink.goalLines[i] - this.rink.offset.x) < 2) {
+				console.log('goal?');
+			}
+		}
+
 		return playerCollisions.length > 0 ? playerCollisions : null;		
 	}
 
@@ -69,7 +78,7 @@
 		}
 	}
 
-	
+
 	var _hockey = Hockey;
 	Hockey.stage.on('mousemove touchmove', function(event) {
 		var eventPosition = this.getPointerPosition();
