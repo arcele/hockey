@@ -6,7 +6,7 @@
 	Hockey.stage = new Kinetic.Stage({
 		container: 'container',
 		width:235,
-		height:550
+		height:620
 	});
 
 	// Last mouse position captured by event handlers
