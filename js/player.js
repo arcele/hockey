@@ -126,19 +126,19 @@ Player.prototype.detectCollision = function() {
 		if(xOffset > 0 && yOffset > 0) { // q1
 			collision.deflectionAngle = 7 * Math.PI / 4;
 			collision.newX = puckLocation.x + this.bodyRadius
-			collision.newY = puckLocation.y - this.bodyRadius
+			collision.newY = puckLocation.y + this.bodyRadius
 		} else if(xOffset > 0 && yOffset < 0) { // q2
 			collision.deflectionAngle = Math.PI / 4;
 			collision.newX = puckLocation.x + this.bodyRadius;
-			collision.newY = puckLocation.y + this.bodyRadius;
+			collision.newY = puckLocation.y - this.bodyRadius;
 		} else if (xOffset < 0 && yOffset < 0) {
 			collision.deflectionAngle = 3 * Math.PI / 4;
 			collision.newX = puckLocation.x - this.bodyRadius;
-			collision.newY = puckLocation.y + this.bodyRadius;
+			collision.newY = puckLocation.y - this.bodyRadius;
 		} else {
 			collision.deflectionAngle = 5 * Math.PI / 4;
 			collision.newX = puckLocation.x - this.bodyRadius;
-			collision.newY = puckLocation.y - this.bodyRadius;
+			collision.newY = puckLocation.y + this.bodyRadius;
 		}
 	} else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
 		// Potential for Shot, depending on stick angle (ignore possibility of puck going between stick & body for now)
