@@ -115,9 +115,9 @@ Player.prototype.rotate = function(rad) {
 	this.stickAngle = newRotation;
 };
 
-Player.prototype.detectCollision = function() {
+Player.prototype.detectCollision = function(puckLocation) {
 	var collision = {player: this, rotationSpeed: this.rotationSpeed, movementSpeed: this.movementSpeed };
-	var puckLocation = this.hockey.puck.getLocation();
+	var puckLocation = puckLocation ? puckLocation : this.hockey.puck.getLocation();
 	var xOffset = puckLocation.x - this.location.x, xDistance = Math.abs(xOffset);
 	var yOffset = this.location.y - puckLocation.y, yDistance = Math.abs(yOffset);
 	if(xDistance < this.bodyRadius && yDistance < this.bodyRadius) {

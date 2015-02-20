@@ -25,10 +25,10 @@
 
 	Hockey.detectCollisions = function() {
 		var playerCollisions = [];
-		var puckLocation = this.puck.getLocation(); // We should pass this puck location along for all collision detection, why get this object's location a billion times?
+		var puckLocation = this.puck.getLocation();
 		for(i = 0; i < this.teams.length; i++) {
 			for(j = 0; j < this.teams[i].players.length; j++) {
-				playerCollision = this.teams[i].players[j].detectCollision();
+				playerCollision = this.teams[i].players[j].detectCollision(puckLocation);
 				if(playerCollision && playerCollision.collisionType) {
 					playerCollisions.push(playerCollision);
 				}
