@@ -37,7 +37,8 @@
 		}
 		// Detect Goals
 		for(var i = 0; i < this.rink.goalLines.length; i++) {
-			if(Math.abs(puckLocation.y - this.rink.goalLines[i] - this.rink.offset.x) < 2) {
+			if(Math.abs(puckLocation.y + this.rink.offset.y - this.rink.goalLines[i]) < Math.abs(this.puck.velocity)) {
+				Hockey.puck.shot.stop();
 				if(console) console.log('goal?');
 			}
 		}
