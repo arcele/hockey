@@ -38,15 +38,20 @@
 		// Detect Goals
 		for(var i = 0; i < this.rink.goalLines.length; i++) {
 			if(Math.abs(puckLocation.y + this.rink.offset.y - this.rink.goalLines[i]) < Math.abs(this.puck.velocity)) {
-				// Puck is at / crossing the goalline on the y plane
+				// Puck is at / crossing the goalline on the y plane, make sure it's between the pipes
 				if(Math.abs(puckLocation.x - (Hockey.rink.size.x / 2)) < (Hockey.rink.size.y * .04)) {
-					// Puck is between the pipes, GOAL!!!!!!
+					// Puck is between the pipes, make sure it's traveling in the right direction
+					if(i == 0 && this.puck.angle > Math.PI / 2 && this.puck.angle < 3 * Math.PI / 2) {
+						if(console) console.log('top goal.');
+					} else if (i != 0 && this.puck.angle < Math.PI / 2 || this.puck.angle > 3 * Math.PI / 2) {
+						if(console) console.log('bottom goal.');
+					} else {
+						if(console) console.log('wrong way for a goal.');
+					}
 					// Hockey.puck.shot.stop();  Goal detection isn't perfect yet, so don't stop the shot yet.
-					if(console) console.log('goal?');
 				}
 			}
 		}
-
 		return playerCollisions.length > 0 ? playerCollisions : null;		
 	}
 
