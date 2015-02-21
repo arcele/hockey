@@ -38,8 +38,12 @@
 		// Detect Goals
 		for(var i = 0; i < this.rink.goalLines.length; i++) {
 			if(Math.abs(puckLocation.y + this.rink.offset.y - this.rink.goalLines[i]) < Math.abs(this.puck.velocity)) {
-				Hockey.puck.shot.stop();
-				if(console) console.log('goal?');
+				// Puck is at / crossing the goalline on the y plane
+				if(Math.abs(puckLocation.x - (Hockey.rink.size.x / 2)) < (Hockey.rink.size.y * .04)) {
+					// Puck is between the pipes, GOAL!!!!!!
+					// Hockey.puck.shot.stop();  Goal detection isn't perfect yet, so don't stop the shot yet.
+					if(console) console.log('goal?');
+				}
 			}
 		}
 
