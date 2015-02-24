@@ -2,6 +2,7 @@ function Team(hockey, id, playersLayer) {
     this.id = id;
     this.players = new Array();
     this.layer = playersLayer;
+    this.goals = 0;
     for(var j = 0; j <= 5; ++j) {
         this.players.push(new Player(Hockey, this, j));
     }

@@ -43,10 +43,10 @@
 					// Puck is between the pipes, make sure it's traveling in the right direction
 					if(i == 0 && this.puck.angle > Math.PI / 2 && this.puck.angle < 3 * Math.PI / 2) {
 						if(console) console.log('top goal.');
+						this.teams[1].goals++;
 					} else if (i != 0 && this.puck.angle < Math.PI / 2 || this.puck.angle > 3 * Math.PI / 2) {
 						if(console) console.log('bottom goal.');
-					} else {
-						if(console) console.log('wrong way for a goal.');
+						this.teams[0].goals++;
 					}
 					// Hockey.puck.shot.stop();  Goal detection isn't perfect yet, so don't stop the shot yet.
 				}
