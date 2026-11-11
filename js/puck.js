@@ -53,6 +53,11 @@ Puck.prototype.advance = function(timeDiff) {
     this.elapsed = (this.elapsed || 0) + Math.min(250, Math.max(0, timeDiff == null ? tick : timeDiff));
     while (this.elapsed >= tick && (this.velocity > 0 || this.hockey.teams)) {
         this.elapsed -= tick;
+        if (this.hockey.goalPause > 0) {
+            this.hockey.goalPause--;
+            if (this.hockey.goalPause === 0) this.hockey.updateScoreboard("PLAY");
+            continue;
+        }
         var location = this.getLocation();
         var rink = this.hockey.rink;
         var travelScale = 0.5; // Half-speed puck travel, including after stick contacts.
@@ -63,7 +68,7 @@ Puck.prototype.advance = function(timeDiff) {
                 team.players.forEach(function(player) { players.push(player.advance()); });
             });
             next=PlayerPhysics.step({x:location.x,y:location.y,
-                vx:this.velocity*Math.sin(this.angle),vy:this.velocity*Math.cos(this.angle),radius:this.radius},players,rink,travelScale);
+                vx:this.velocity*Math.sin(this.angle),vy:this.velocity*Math.cos(this.angle),radius:this.radius,onTravel:this.hockey.checkGoal},players,rink,travelScale);
         } else {
             next=BoardPhysics.move(location.x,location.y,this.velocity*Math.sin(this.angle),
                 this.velocity*Math.cos(this.angle),travelScale,rink.size.x,rink.size.y,rink.cornerRadius,this.radius);

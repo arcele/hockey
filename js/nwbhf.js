@@ -23,32 +23,36 @@
 	
 	Hockey.puck = new Puck(Hockey);
 
-	Hockey.detectCollisions = function() {
-		var playerCollisions = [];
-		var puckLocation = this.puck.getLocation();
-		// Detect Goals
-		for(var i = 0; i < this.rink.goalLines.length; i++) {
-			if(Math.abs(puckLocation.y + this.rink.offset.y - this.rink.goalLines[i]) < Math.abs(this.puck.velocity)) {
-				// Puck is at / crossing the goalline on the y plane, make sure it's between the pipes
-				if(Math.abs(puckLocation.x - (Hockey.rink.size.x / 2)) < (Hockey.rink.size.y * .04)) {
-					// Puck is between the pipes, make sure it's traveling in the right direction
-					if(i == 0 && this.puck.angle > Math.PI / 2 && this.puck.angle < 3 * Math.PI / 2) {
-						if(console) console.log('top goal.');
-						this.teams[1].goals++;
-					} else if (i != 0 && this.puck.angle < Math.PI / 2 || this.puck.angle > 3 * Math.PI / 2) {
-						if(console) console.log('bottom goal.');
-						this.teams[0].goals++;
-					}
-					// Hockey.puck.shot.stop();  Goal detection isn't perfect yet, so don't stop the shot yet.
-				}
-			}
-		}
-		return playerCollisions.length > 0 ? playerCollisions : null;		
-	}
-
-	Hockey.handleCollisions = function() {
-        this.detectCollisions(); // Legacy scoring only; contacts run in the fixed simulation.
+    Hockey.scoreboard = new Scoreboard(document.getElementById('scoreboard'));
+    Hockey.updateScoreboard = function(message) {
+        this.scoreboard.render(this.teams[0].goals,this.teams[1].goals,message);
     };
+    Hockey.checkGoal = function(from,to) {
+        var end=Scoring.crossing(from,to,Hockey.puck.radius,Hockey.rink);
+        if(end===null) return false;
+        Hockey.teams[end].goals++;
+        Hockey.goalScored=true;
+        return true;
+    };
+    Hockey.faceoff = function() {
+        this.puck.puck.setX(this.rink.offset.x+this.rink.size.x/2);
+        this.puck.puck.setY(this.rink.offset.y+this.rink.size.y/2);
+        this.puck.velocity=0;
+        this.teams.forEach(function(team){team.players.forEach(function(player){player.stopMovement();});});
+        this.goalPause=90;
+    };
+    Hockey.handleCollisions = function() {
+        if(!this.goalScored) return;
+        this.goalScored=false;
+        this.faceoff();
+        this.updateScoreboard('GOAL!  •  FACEOFF');
+    };
+    document.getElementById('new-game').addEventListener('click',function(){
+        Hockey.teams.forEach(function(team){team.goals=0;});
+        Hockey.faceoff();
+        Hockey.updateScoreboard('NEW GAME  •  FACEOFF');
+    });
+    Hockey.updateScoreboard('PLAY');
     Hockey.puck.shoot(0, 0); // Keep simulation active so players can strike a resting puck.
 
 

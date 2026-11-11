@@ -23,8 +23,7 @@ Checks cover four walls, four corners, fast and shallow shots, repeated rebounds
 corner joins, speed conservation, split time intervals, frame-rate equivalence,
 and preservation of player collision corrections.
 
-Scoring remains prototype code. The end boards remain closed, matching the existing rink; goal openings
-and goal state handling are separate work.
+The end boards remain closed behind the goal lines.
 
 ## Player and stick physics
 
@@ -49,3 +48,23 @@ node tests/players.test.js
 These checks cover fast body and stick hits, glancing rebounds, separating contacts,
 coincident centers, stick reach, both swing directions, angle wrapping, moving-body
 impulses, incremental player movement, and mirrored opponent tracks.
+
+## Scoreboard and goals
+
+The amber LED scoreboard shows Home (orange, defending the bottom goal) and
+Away (red, defending the top goal). Goals require the entire puck to cross the
+opposing goal line outward with its full width between the marked posts.
+Crossings are tested on each physics movement substep, using interpolated crossing
+positions rather than velocity or proximity. A goal counts once, resets the puck
+to center, and pauses play for 90 simulation ticks (1.5 seconds during normal play).
+New Game clears both scores and starts a faceoff. Scores last for the current page
+session; reloading starts a new game. The goal markings are visual; physical post
+and net collisions are not yet modeled.
+
+```sh
+node tests/scoring.test.js
+```
+
+Covers both ends, partial and wrong-way crossings, post clearance, fast shots,
+interpolated crossing positions, one score per goal, faceoff pause, team attribution,
+New Game reset, and LED rendering/accessibility text.

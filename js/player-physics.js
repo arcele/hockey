@@ -19,8 +19,10 @@
             if(speed>30){p.vx*=30/speed;p.vy*=30/speed;}
         }
         for(var i=1;i<=count;i++) {
+            var before={x:p.x,y:p.y};
             var b=BoardPhysics.move(p.x,p.y,p.vx,p.vy,travelScale/count,rink.size.x,rink.size.y,rink.cornerRadius,p.radius);
             Object.assign(p,b);
+            if (p.onTravel && p.onTravel(before,p)) return p;
             // Several passes settle simultaneous body/stick/board contacts.
             for(var pass=0;pass<3;pass++) {
                 players.forEach(function(s) {

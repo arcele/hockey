@@ -49,6 +49,15 @@ Rink.prototype.render = function() {
 		this.layer.add(goalLine);
 	}
 
+    // Goal mouths match scoring width; posts mark the playable opening.
+    for(var end=0;end<2;end++) {
+        var center=this.offset.x+rinkWidth/2, half=rinkHeight*.04;
+        var lineY=this.goalLines[end], backY=lineY+(end===0?-16:16);
+        var net=new Kinetic.Line({points:[center-half,lineY,center-half,backY,center+half,backY,center+half,lineY],stroke:'#999',strokeWidth:2});
+        this.layer.add(net);
+        for(var side=-1;side<=1;side+=2) this.layer.add(new Kinetic.Circle({x:center+side*half,y:lineY,radius:2,fill:'#c42030'}));
+    }
+
 	// Add Faceoff Circles -- ESTIMATED
 	var circles = [ 
 		{ x: (this.offset.x + rinkHeight * .1), y: (this.offset.y + rinkHeight * .2) },
