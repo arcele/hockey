@@ -4,6 +4,7 @@ function Rink (hockey) {
 	this.offset = { x:5, y:25 }; 
 //	this.offset = { x: 200, y: 75 };
 	this.size = { x: 221, y: 520 };
+	this.cornerRadius = 30;
 	this.layer = new Kinetic.Layer({ id: 'rink'});
 	this.render();
 }
@@ -19,7 +20,7 @@ Rink.prototype.render = function() {
 		fill: '#EFEAF7',
 		stroke: 'black',
 		strokeWidth: 2,
-		cornerRadius: 30
+		cornerRadius: this.cornerRadius
 
 	});
 	this.layer.add(rink);

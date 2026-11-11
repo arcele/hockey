@@ -6,6 +6,7 @@
 function Puck (hockey) {
     this.hockey = hockey;
     this.stage = hockey.stage;
+    this.radius = 3;
     this.velocity = 0.0;
     this.angle = 0.0;
     this.initialLocation = { x:110, y:260 }; // this should be a constant
@@ -19,7 +20,7 @@ Puck.prototype.render = function() {
 	{
 	    x: this.initialLocation.x + this.hockey.rink.offset.x,
 	    y: this.initialLocation.y + this.hockey.rink.offset.y,
-	    radius: 3,
+	    radius: this.radius,
 	    fill: '#111',
 	    stroke: '#000'
 	}
@@ -30,12 +31,13 @@ Puck.prototype.render = function() {
 
 Puck.prototype.shoot = function(velocity, angle) {
     this.stopShot();
-    this.velocity = velocity? velocity : Math.random() * 10;
-    this.angle = angle? angle : Math.random() * 2 * Math.PI;
+    this.elapsed = 0;
+    this.velocity = velocity == null ? Math.random() * 10 : Math.max(0, velocity);
+    this.angle = angle == null ? Math.random() * 2 * Math.PI : angle;
     var _this = this;
 	this.shot = new Kinetic.Animation(
 		function(frame) {
-			_this.advance();
+			_this.advance(frame.timeDiff);
 		}, _this.layer
 	);
     this.shot.start();
@@ -46,40 +48,25 @@ Puck.prototype.getLocation = function() {
 	return {x: this.puck.getX() - this.hockey.rink.offset.x, y: this.puck.getY() - this.hockey.rink.offset.y };
 }
 
-Puck.prototype.advance = function() {
-    // Why are we tracking the location manually, when it's automatically on the puck.puck??
-    var puckLocation = this.getLocation();
-
-    var newX = puckLocation.x + this.velocity * Math.sin(this.angle);
-    var newY = puckLocation.y + this.velocity * Math.cos(this.angle);
-
-    if(this.velocity > 0) {
-        this.velocity -= .05; // Drag
-    } else {
-    	this.velocity = 0;
-        this.shot.stop();
+// Keep legacy speed units (pixels per 60 Hz tick), but simulate fixed steps.
+Puck.prototype.advance = function(timeDiff) {
+    var tick = 1000 / 60;
+    this.elapsed = (this.elapsed || 0) + Math.min(250, Math.max(0, timeDiff == null ? tick : timeDiff));
+    while (this.elapsed >= tick && this.velocity > 0) {
+        this.elapsed -= tick;
+        var location = this.getLocation();
+        var rink = this.hockey.rink;
+        var next = BoardPhysics.move(location.x, location.y,
+            this.velocity * Math.sin(this.angle), this.velocity * Math.cos(this.angle),
+            1, rink.size.x, rink.size.y, rink.cornerRadius, this.radius);
+        this.angle = rink.simplifyRadians(Math.atan2(next.vx, next.vy));
+        this.velocity = Math.max(0, this.velocity - .05);
+        this.puck.setX(next.x + rink.offset.x);
+        this.puck.setY(next.y + rink.offset.y);
+        // Resolve players after committing board movement so corrections survive.
+        this.hockey.handleCollisions();
     }
-
-
-    if(puckLocation.x > 220) {
-        newX = 220 - (puckLocation.x - 220);
-        this.deflect(0, 1, 0);
-    } else if(puckLocation.x < 0) {
-        newX = Math.abs(puckLocation.x);
-        this.deflect(0, 1, 0);
-    }
-
-    if(puckLocation.y > 520) {
-        newY = 520 - (puckLocation.y - 520);
-        this.deflect(Math.PI, 1, 0);
-    } else if (puckLocation.y < 0) {
-        newY = Math.abs(puckLocation.y);
-        this.deflect(Math.PI, 1, 0);
-    }
-    this.hockey.handleCollisions();
-    this.puck.setX(newX + this.hockey.rink.offset.x);
-    this.puck.setY(newY + this.hockey.rink.offset.y);
-
+    if (this.velocity === 0) { this.elapsed = 0; this.stopShot(); }
 };
 
 Puck.prototype.deflect = function(deflectionAngle, rotationDirection, rotationSpeed) {
