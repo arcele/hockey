@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.json","compilerOptions":{"noEmit":false,"outDir":".test","rootDir":".","module":"NodeNext","moduleResolution":"NodeNext"},"include":["src/simulation.ts","src/desktop-controls.ts","tests/*.ts"]}

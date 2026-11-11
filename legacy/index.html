@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+ <head>
+   <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <title>[nwbhf] Northwest Bubble Hockey Federation</title>
+   <meta name="description" content="An HTML5 Bubble Hockey game in active development." />
+   <meta name="keywords" content="hockey, bubble hockey, bubblehockey, HTML5, javascript, coconut water" />
+   <link rel="stylesheet" type="text/css" href="css/nwbhf.css" />
+ </head>
+ <body>
+ 	<div id="zoom-wrapper">
+     <div id="container"></div>
+	 <section id="scoreboard" aria-label="Hockey scoreboard">
+      <div class="board-brand">NORTHWEST BUBBLE HOCKEY</div>
+      <div class="score-teams"><div><h2 class="home-label">HOME</h2><div id="home-score" class="score-digits" aria-hidden="true"></div></div>
+      <span class="versus" aria-hidden="true">:</span>
+      <div><h2 class="away-label">AWAY</h2><div id="away-score" class="score-digits" aria-hidden="true"></div></div></div>
+      <div class="score-status" aria-hidden="true">PLAY</div>
+      <div class="score-announcement" role="status" aria-live="polite"></div>
+      <button id="new-game" type="button">NEW GAME</button>
+     </section>
+	</div>
+   <script src="js/lib/kinetic-v4.7.5.min.js"></script>
+   <script src="js/rink.js"></script>
+   <script src="js/board-physics.js"></script>
+   <script src="js/player-physics.js"></script>
+   <script src="js/puck.js"></script>
+   <script src="js/team.js"></script>
+   <script src="js/player.js"></script>
+   <script src="js/scoring.js"></script>
+   <script src="js/scoreboard.js"></script>
+   <script src="js/nwbhf.js"></script>
+ </body>
+</html>

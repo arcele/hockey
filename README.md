@@ -1,70 +1,69 @@
-# Bubble hockey
+# Northwest Bubble Hockey · v2
 
-Open `index.html` in a browser. Select a skater by hovering over its selector,
-move vertically to slide it, and move horizontally to rotate its stick.
-Hover over BUMP (or touch it) to launch the puck.
+A client-side tabletop hockey game rebuilt with TypeScript, Vite, and Canvas 2D.
+No runtime dependencies, account, or server required. The former KineticJS game
+is preserved in `legacy/` (open `legacy/index.html` to revisit it).
 
-## Board physics milestone
+## Run
 
-The puck uses a fixed 60 Hz simulation, with legacy speed units of pixels per
-simulation tick. Straight walls and rounded corners share the rink dimensions;
-contacts account for the puck radius. Swept collision detection reflects velocity
-at each contact and consumes the remaining movement, including multiple rebounds.
-Board rebounds preserve speed; ice drag removes 0.05 speed units per tick.
-Long frame gaps are capped at 250 ms to avoid excessive catch-up after tab suspension.
-
-Run regression checks with Node.js (no dependencies):
+Node 22.12+ (or current LTS) and npm:
 
 ```sh
-node tests/boards.test.js
+npm ci
+npm run dev
+npm test
+npm run build
+npm run preview
 ```
 
-Checks cover four walls, four corners, fast and shallow shots, repeated rebounds,
-corner joins, speed conservation, split time intervals, frame-rate equivalence,
-and preservation of player collision corrections.
+Vite prints the local address. Production output is `dist/`; deploy that folder
+on any static host. For testing on a phone on the same trusted Wi-Fi network,
+run `npm run dev -- --host 0.0.0.0` and open the printed Network URL on the phone.
 
-The end boards remain closed behind the goal lines.
+## Play
 
-## Player and stick physics
+Start with Drop the Puck. Orange is home, attacking the top goal; red is a local
+practice bot. Choose one of six players with the selector or keys 1–6. On desktop, hover over a lane to select a player: the upper half has left wing,
+center, and right wing lanes; the lower half has left/right defense, with the goalie
+at the bottom. Move the mouse vertically to slide and horizontally to swing, with
+no click required. Crossing a lane selects its player and resets the swing; leaving
+the rink stops mouse input. On touchscreens, drag on the rink to select and move a
+player along its rail. Arrow keys / touch slide buttons also work. A / D or the two touch spin buttons rotate the stick in either
+direction. The goalie slides horizontally and has no stick. Space or Pause
+pauses; New Match resets the score and clock. Losing focus pauses play.
 
-Bodies are circles; sticks are 3 px thick line segments with rounded ends,
-matching their rendered reach and length. Contacts reflect relative velocity
-against the surface normal with 0.8 restitution. Translation and stick rotation
-transfer momentum to the puck; separating contacts only receive overlap correction.
+Three-minute matches, whole-puck goals, a brief faceoff after each goal, and a
+final result are included. Scores are session-only. No online multiplayer yet.
+The touch pads support simultaneous slide and spin via independent pointers.
 
-Players and puck share the fixed simulation loop, including while the puck rests.
-Skaters travel at 1.5 px per tick. Puck travel is scaled to 50% of its physics
-velocity; drag and stick rotation retain their existing tuning. Horizontal pointer movement queues signed swings,
-limited to 0.35 radians per tick and one full revolution of pending input.
-Puck speed after player contact is capped at 30 px per tick. Adaptive substeps
-limit relative travel to 0.5 px, including stick-tip travel; three contact passes
-settle overlapping surfaces and reapply board containment. Tightly packed contacts
-can still require gameplay tuning; this is a lightweight kinematic solver.
+## Architecture and multiplayer path
 
-```sh
-node tests/players.test.js
-```
+- `src/simulation.ts`: serializable state, fixed 120 Hz step, bounded commands,
+  circular bodies, capsule sticks, rounded boards, goal crossings, match rules.
+  No browser APIs, wall clocks or random numbers. Identical inputs and initial
+  states replay identically in tests. Floating-point cross-platform determinism
+  is not guaranteed; future networking should use authoritative snapshots.
+- `src/render.ts`: high-DPI canvas rink, procedural ice, rails and player figures.
+- `src/main.ts`: pointer/keyboard input, practice bot adapter, fixed-step accumulator,
+  DOM scoreboard, pause and lifecycle handling. No game rules live in the DOM.
+- `src/style.css`: responsive arena, scoreboard and touch controls.
 
-These checks cover fast body and stick hits, glancing rebounds, separating contacts,
-coincident centers, stick reach, both swing directions, angle wrapping, moving-body
-impulses, incremental player movement, and mirrored opponent tracks.
+Commands carry team, player, sequence and tick. Next: add a WebSocket room server
+running this simulation. Validate team ownership, sequence, tick windows and
+rate limits on the server; never trust the client-supplied team. Keep inputs
+per tick, broadcast snapshots at 20–30 Hz, interpolate remote state, then add
+local prediction/reconciliation. The current local adapter supplies inputs every
+tick; it is not a transport, authentication layer or network command queue.
+Bot commands can be replaced by a second human's input stream.
 
-## Scoreboard and goals
+The lightweight physics uses substeps bounded by configured maximum relative
+travel, with two solver passes. Posts and nets are visual markings, not separate
+colliders. No persistence, matchmaking, sound assets, or external art is required.
+Fonts use Google Fonts with system fallbacks; gameplay works without that request.
 
-The amber LED scoreboard shows Home (orange, defending the bottom goal) and
-Away (red, defending the top goal). Goals require the entire puck to cross the
-opposing goal line outward with its full width between the marked posts.
-Crossings are tested on each physics movement substep, using interpolated crossing
-positions rather than velocity or proximity. A goal counts once, resets the puck
-to center, and pauses play for 90 simulation ticks (1.5 seconds during normal play).
-New Game clears both scores and starts a faceoff. Scores last for the current page
-session; reloading starts a new game. The goal markings are visual; physical post
-and net collisions are not yet modeled.
+## Checks
 
-```sh
-node tests/scoring.test.js
-```
-
-Covers both ends, partial and wrong-way crossings, post clearance, fast shots,
-interpolated crossing positions, one score per goal, faceoff pause, team attribution,
-New Game reset, and LED rendering/accessibility text.
+`npm test` compiles the portable simulation and runs Node's built-in test runner.
+Checks cover goal rules, one-shot scoring, faceoffs, command bounds, deterministic
+replay, wall/corner containment, body/stick rebounds, both swing directions and
+match expiry. `npm run build` also type-checks all browser code.
