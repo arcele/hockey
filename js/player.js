@@ -5,7 +5,7 @@ function Player(hockey, team, positionId) {
     this.bodyRadius = 8;
     this.stickReach = 7;
     this.stickLength = 15;
-    this.speed = 1;  // "Skating Speed" -- Speed with which the player is capable of moving
+    this.speed = 1.5;  // "Skating Speed" -- Speed with which the player is capable of moving
     this.layer = team.layer;
     this.location = {
 	    x: this.startingPoint('x'),
@@ -93,114 +93,35 @@ Player.prototype.render = function() {
 };
 
 Player.prototype.move = function(x,y) {
-    var _this = this;
-    this.stopMovement();    // One animation movement at a time people
-    this.movement = new Kinetic.Animation(
-	    function(frame) {
-	        _this.advance(x, y);
-	    }, _this.layer
-    );
-    this.movement.start();
+    this.target = {x:x,y:y};
 };
 
 Player.prototype.rotate = function(rad) {
-    // This would be neater as an animation
-    this.rotationSpeed = rad; // maximum rotation speed of 7 radians ~about 1 full circle
-	if(Math.abs(rad) > 7) {
-		this.rotationSpeed = rad > 0 ? 7 : -7;
-	}
-	var newRotation = this.hockey.rink.simplifyRadians(this.player.group.getRotation() + rad);
-	this.rotationDirection = (rad > 0)? Player.CONSTANTS.rotationDirection.CLOCKWISE : Player.CONSTANTS.rotationDirection.COUNTER_CLOCKWISE;
-	this.player.group.setRotation(newRotation);
-	this.stickAngle = newRotation;
+    // Queue signed rotation, avoiding angle-wrap ambiguity and event-rate impulses.
+    this.pendingRotation = (this.pendingRotation || 0) + rad;
+    this.pendingRotation = Math.max(-Math.PI*2,Math.min(Math.PI*2,this.pendingRotation));
 };
 
-Player.prototype.detectCollision = function(puckLocation) {
-	var collision = {player: this, rotationSpeed: this.rotationSpeed, movementSpeed: this.movementSpeed };
-	var puckLocation = puckLocation ? puckLocation : this.hockey.puck.getLocation();
-	var xOffset = puckLocation.x - this.location.x, xDistance = Math.abs(xOffset);
-	var yOffset = this.location.y - puckLocation.y, yDistance = Math.abs(yOffset);
-	if(xDistance < this.bodyRadius && yDistance < this.bodyRadius) {
-		// Body Bump -- 0 Angle is the postive x-axis, always bouce diagonally 
-		collision.collisionType = Player.CONSTANTS.collisionTypes.BUMP;
-		if(xOffset > 0 && yOffset > 0) { // q1
-			collision.deflectionAngle = 7 * Math.PI / 4;
-			collision.newX = puckLocation.x + this.bodyRadius
-			collision.newY = puckLocation.y + this.bodyRadius
-		} else if(xOffset > 0 && yOffset < 0) { // q2
-			collision.deflectionAngle = Math.PI / 4;
-			collision.newX = puckLocation.x + this.bodyRadius;
-			collision.newY = puckLocation.y - this.bodyRadius;
-		} else if (xOffset < 0 && yOffset < 0) {
-			collision.deflectionAngle = 3 * Math.PI / 4;
-			collision.newX = puckLocation.x - this.bodyRadius;
-			collision.newY = puckLocation.y - this.bodyRadius;
-		} else {
-			collision.deflectionAngle = 5 * Math.PI / 4;
-			collision.newX = puckLocation.x - this.bodyRadius;
-			collision.newY = puckLocation.y + this.bodyRadius;
-		}
-	} else if(xDistance < (this.bodyRadius + this.stickLength + this.stickReach) && yDistance < (this.bodyRadius + this.stickLength + this.stickReach)) {
-		// Potential for Shot, depending on stick angle (ignore possibility of puck going between stick & body for now)
-		var puckAngle = this.getPuckAngle();
-		var angleDelta = puckAngle - this.stickAngle;
-		var prevAngleDelta = puckAngle + this.rotationSpeed - this.stickAngle;
-
-		if(angleDelta * prevAngleDelta < 0) {
-			// One value is positive, one is negative, swinging shot
-			collision.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
-			collision.collisionDirection = angleDelta < prevAngleDelta ? 'CCW' : 'CW';
-		} else if(Math.abs(puckAngle - this.stickAngle) < Player.CONSTANTS.collisionTolerance) { 
-			// If the stick is on the puck
-			collision.collisionType = Player.CONSTANTS.collisionTypes.SHOT;
-			// collisionDiretion, CCW means that the puck is CCW from stick
-			collision.collisionDirection = puckAngle - this.stickAngle < 0 ? 'CCW' : 'CW';
-		}
-	}
-	this.resetCollisionData();
-	return collision;
-};
-
-Player.prototype.resetCollisionData = function() {
-	// After detecting a player collision, reset all relevant collision data 
-	this.rotationSpeed = 0;
-	this.movementSpeed = 0;
-};
-
-Player.prototype.getPuckAngle = function() {
-	var puckLocation = this.hockey.puck.getLocation();
-	var xOffset = puckLocation.x - this.location.x, xDistance = Math.abs(xOffset);
-	var yOffset = puckLocation.y - this.location.y, yDistance = Math.abs(yOffset);
-	// atan2 is relative to x axis, our stick angle is relative to y axis.  This madness must be fixed -- returning relative to the y axis for now.
-	return this.hockey.rink.simplifyRadians(Math.atan2(yOffset, xOffset) + Math.PI / 2);
-};
-
-Player.prototype.advance = function(x, y) {
-
-    // This works fine for team 0, but the locations on team 2 are jacked.  need to figure out how to handle drawing dots better, perhaps two boundaries objects for each position, one per team?
-    if(this.location.x != x) {
-        // Goalie movement
-        this.location.x = this.location.x + this.speed;
+Player.prototype.advance = function() {
+    var start = {x:this.location.x,y:this.location.y,angle:this.stickAngle,
+        radius:this.bodyRadius,reach:this.bodyRadius/2+this.stickReach,
+        length:this.stickLength,hasStick:this.position.hasStick};
+    var target=this.target || this.location;
+    for(var axis of ['x','y']) {
+        var bounds=this.position.boundaries[axis];
+        var low=Math.min(bounds[0],bounds[1]),high=Math.max(bounds[0],bounds[1]);
+        if(this.team.id>1) {var oldLow=low;low=this.hockey.rink.size[axis]-high;high=this.hockey.rink.size[axis]-oldLow;}
+        var dest=Math.max(low,Math.min(high,target[axis]));
+        this.location[axis]+=Math.max(-this.speed,Math.min(this.speed,dest-this.location[axis]));
     }
-    if(this.location.y != y) {
-        // Vertical Movement of skaters
-		this.location.y = this.location.y < y ? (this.location.y + Math.min(this.speed, (y - this.location.y))) : (this.location.y - Math.min(this.speed, (this.location.y - y)));
-    }
-    // Ensure that we're within the dimensions allowed
-    if(this.location.y > this.position.boundaries.y[1]) {
-        this.location.y = this.position.boundaries.y[1];
-    } else if(this.location.y < this.position.boundaries.y[0]) {
-        this.location.y = this.position.boundaries.y[0];
-    }
-    if( (this.location.x == x || this.location.x == this.position.boundaries.x[0] || this.location.x == this.position.boundaries.x[1]) && (this.location.y == y || this.location.y == this.position.boundaries.y[0] || this.location.y == this.position.boundaries.y[1]) ) {
-        this.stopMovement();
-        return false;
-    }
-    this.movementSpeed = this.speed;
-    this.player.group.setX(this.location.x + this.hockey.rink.offset.x);
-    this.player.group.setY(this.location.y + this.hockey.rink.offset.y);
-
-    this.advance(x,y);
+    start.dx=this.location.x-start.x;start.dy=this.location.y-start.y;
+    start.da=Math.max(-.35,Math.min(.35,this.pendingRotation || 0));
+    this.pendingRotation=(this.pendingRotation || 0)-start.da;
+    this.stickAngle=this.hockey.rink.simplifyRadians(this.stickAngle+start.da);
+    this.player.group.setX(this.location.x+this.hockey.rink.offset.x);
+    this.player.group.setY(this.location.y+this.hockey.rink.offset.y);
+    this.player.group.setRotation(this.stickAngle);
+    return start;
 };
 
 Player.prototype.select = function() {
@@ -211,6 +132,8 @@ Player.prototype.select = function() {
 };
 
 Player.prototype.stopMovement = function() {
+    this.target = null;
+    this.pendingRotation = 0;
     if(this.movement) this.movement.stop();
 };
 

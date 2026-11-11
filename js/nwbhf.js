@@ -26,15 +26,6 @@
 	Hockey.detectCollisions = function() {
 		var playerCollisions = [];
 		var puckLocation = this.puck.getLocation();
-		for(i = 0; i < this.teams.length; i++) {
-			for(j = 0; j < this.teams[i].players.length; j++) {
-				playerCollision = this.teams[i].players[j].detectCollision(puckLocation);
-				if(playerCollision && playerCollision.collisionType) {
-					playerCollisions.push(playerCollision);
-				}
-				this.teams[i].players[j].rotationSpeed = 0; // Reset the rotation speed after every detection, I think
-			}
-		}
 		// Detect Goals
 		for(var i = 0; i < this.rink.goalLines.length; i++) {
 			if(Math.abs(puckLocation.y + this.rink.offset.y - this.rink.goalLines[i]) < Math.abs(this.puck.velocity)) {
@@ -56,36 +47,9 @@
 	}
 
 	Hockey.handleCollisions = function() {
-		var collisions = this.detectCollisions();
-		if(collisions != null) {
-			for(var i = 0; i < collisions.length; i++) {
-				var collision = collisions[i];
-				if(collision.collisionType == Player.CONSTANTS.collisionTypes.SHOT) {
-					var shotAngle = (collision.player.stickAngle + (Math.PI / 2 * collision.player.rotationDirection));
-					var shotSpeed = 5 * collision.rotationSpeed + collision.movementSpeed; // init value for a stationary puck
-					if ( Math.abs(collision.movementSpeed) + collision.rotationSpeed == 0) { // stationary player
-						shotSpeed = this.puck.velocity * .2;
-					} else if (this.puck.velocity > 0) { // moving puck, stationary player
-						var shotSpeed = Math.min( 10, (collision.rotationSpeed + _hockey.puck.velocity + collision.rotationSpeed) * 2 + 1); // 
-					}
-					if(shotSpeed > 1) {  // don't bother trying to shoot w/o velocity					
-						if(console) console.log('Shot by Player', collision.player.position.positionId, ' on team ', collision.player.team.id);
-						this.puck.shoot(shotSpeed, shotAngle);
-					}
-				} else if(collision.collisionType == Player.CONSTANTS.collisionTypes.BUMP) {
-					// Body Stroke direction should depend on the angle where the puck hits the circle of the body.  This is just a placeholder
-					var bumpSpeed = Math.max(1.2, this.puck.velocity * .3);
-					if(console) console.log("Bump off player", collision.player.position.positionId, " on team ", collision.player.team.id, collision.deflectionAngle, this.puck.velocity, bumpSpeed);
-					// move the puck out of the range of another bump before moving to prevent the dreaded double/triple/infiniti-bump
-					// new x and y positions are out of wack, let's revisit this
-					this.puck.puck.setX(collision.newX + this.rink.offset.x);
-					this.puck.puck.setY(collision.newY + this.rink.offset.y);
-					this.puck.layer.draw();
-					this.puck.shoot(bumpSpeed, collision.deflectionAngle);
-				}
-			}
-		}
-	}
+        this.detectCollisions(); // Legacy scoring only; contacts run in the fixed simulation.
+    };
+    Hockey.puck.shoot(0, 0); // Keep simulation active so players can strike a resting puck.
 
 
 	var _hockey = Hockey;
@@ -109,7 +73,7 @@
 				selectedPlayer.rotate( rotationRads / 10);
 			}
 
-			_hockey.handleCollisions();
+
 			
 		}
 		_hockey.lastPosition = {x: x, y: y};
