@@ -82,8 +82,10 @@ reverse. Adjust the exported constant in `src/simulation.ts` to tune surface fee
 Auto goalie is on by default. Toggle it in the controls panel to switch between
 puck-tracking goalie assistance and manual control. While enabled, the goalie
 is excluded from mouse, touch, keyboard, and button selection; the bottom hover
-area continues to select defense skaters. The goalie uses the same rail limits,
-movement speed, and collision rules as manual input. Switching on while controlling
+area continues to select defense skaters. Assisted goalies use the normal rail limits and collision rules, but move at
+60 rink units/s (down from 225) and track the puck with a 300 ms reaction delay.
+This applies equally to Auto goalie and the computer goalie; manual control
+retains its immediate 225-unit/s movement. Tracking history resets at faceoffs. Switching on while controlling
 the goalie returns selection to center. The choice survives New Match within the
 page session; reloading restores the default.
 
@@ -101,3 +103,6 @@ Defense skaters (4 and 5) extend to y=680 behind the home goal line, mirrored
 to y=40 for the visitors. Their sticks can sweep pucks at the end boards while
 their bodies stay inside the rink. In manual goalie mode only the central bottom
 lane selects the goalie; the left and right lanes still select deep defenders.
+
+Wing forwards (1 and 2) extend to y=40 at the attacking end, mirrored to y=680
+for the visitors, allowing their sticks to sweep pucks from the rounded corners.
