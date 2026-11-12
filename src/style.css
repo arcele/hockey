@@ -4,7 +4,7 @@
 
 .mobile-tip{display:none}
 @media(hover:none){.desktop-tip{display:none}.mobile-tip{display:inline}}
-@media(hover:hover) and (pointer:fine){canvas{cursor:crosshair}.mouse-tip{display:block}}
+@media(hover:hover) and (pointer:fine){canvas{cursor:url("./cursor.svg") 5 4, default}.mouse-tip{display:block}}
 
 .auto-goalie{display:flex;align-items:center;gap:10px;position:relative;margin:14px 0;color:#d6e0e3;font-size:11px;cursor:pointer}
 .auto-goalie>span:first-child{flex:1}.auto-goalie small{display:block;font-size:9px;color:#8fa5b2;margin-top:4px}
