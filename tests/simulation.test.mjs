@@ -31,3 +31,19 @@ test('auto goalie tracks puck through normal speed and rail limits',()=>{
  step(s,[{seq:s.tick,tick:s.tick,team:0,player:5,axis:1,spin:0}]);
  assert.equal(goalie.x,155+225*DT,'Manual control still works without auto command');
 });
+
+const bumpInput={seq:0,tick:0,team:0,player:0,axis:0,spin:0,bump:true};
+test('bump nudges a resting puck inward once and respects cooldown',()=>{
+ const s=createState();serve(s);s.players=[];s.puck={x:50,y:360,vx:0,vy:0};
+ step(s,[bumpInput,bumpInput]);assert.equal(s.bumpCount,1);assert.ok(s.puck.vx>0);assert.ok(s.puck.x>50);assert.equal(s.bumpCooldown,180);
+ s.puck.vx=0;s.puck.vy=0;step(s,[bumpInput]);assert.equal(s.bumpCount,1);assert.equal(s.puck.vx,0);
+ for(let i=0;i<179;i++)step(s,[]);
+ step(s,[bumpInput]);assert.equal(s.bumpCount,2);assert.ok(Math.hypot(s.puck.vx,s.puck.vy)>170);
+ assert.deepEqual(s.score,[0,0]);
+});
+test('bump cannot alter fast shots or inactive phases',()=>{
+ const s=createState();step(s,[bumpInput]);assert.equal(s.bumpCount,0);
+ serve(s);s.players=[];s.puck={x:200,y:360,vx:100,vy:0};step(s,[bumpInput]);assert.equal(s.bumpCount,0);
+ s.phase='goal';s.wait=100;step(s,[bumpInput]);assert.equal(s.bumpCount,0);
+ s.phase='finished';step(s,[bumpInput]);assert.equal(s.bumpCount,0);
+});

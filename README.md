@@ -86,3 +86,13 @@ area continues to select defense skaters. The goalie uses the same rail limits,
 movement speed, and collision rules as manual input. Switching on while controlling
 the goalie returns selection to center. The choice survives New Match within the
 page session; reloading restores the default.
+
+## Stuck puck / bump
+
+Click or tap **Bump**, or press **B**, to nudge a slow or resting puck back toward
+the middle. Successive bumps alternate a small sideways bias to help escape traps.
+Bump is available below 45 rink units/s, during active play, with a 1.5-second
+simulation cooldown; the button shows the cooldown. It does not reset the score,
+clock, or positions. The action is part of the simulation command stream for replay
+and future server-side validation. Fast shots, pauses, faceoffs and full time
+cannot be bumped.

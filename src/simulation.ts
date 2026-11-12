@@ -3,15 +3,15 @@ export const DT=1/120, W=400, H=720, PUCK_RADIUS=6;
 // Tabletop sliding friction: rink units / second²; stops rather than coasting forever.
 export const PUCK_FRICTION=160;
 export type Team=0|1;
-export interface Command {seq:number;tick:number;team:Team;player:number;axis:number;spin:number;target?:number}
+export interface Command {seq:number;tick:number;team:Team;player:number;axis:number;spin:number;target?:number;bump?:boolean}
 export interface Skater {team:Team;slot:number;x:number;y:number;angle:number;min:number;max:number;goalie:boolean}
-export interface State {tick:number;remaining:number;phase:'ready'|'playing'|'goal'|'finished';wait:number;score:[number,number];lastGoal:Team|null;puck:{x:number;y:number;vx:number;vy:number};players:Skater[]}
+export interface State {bumpCooldown:number;bumpCount:number;tick:number;remaining:number;phase:'ready'|'playing'|'goal'|'finished';wait:number;score:[number,number];lastGoal:Team|null;puck:{x:number;y:number;vx:number;vy:number};players:Skater[]}
 const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n));
 export function createState():State {
  const players:Skater[]=[];
  const slots=[[48,220,80,350],[352,220,80,350],[200,255,150,350],[120,480,390,620],[280,480,390,620],[200,650,155,245]];
  for(const team of [0,1] as Team[]) slots.forEach(([x,y,min,max],slot)=>players.push({team,slot,x:team?W-x:x,y:team?H-y:y,angle:team?Math.PI:0,min:team&&slot!==5?H-max:min,max:team&&slot!==5?H-min:max,goalie:slot===5}));
- return {tick:0,remaining:180,phase:'ready',wait:0,score:[0,0],lastGoal:null,puck:{x:200,y:360,vx:0,vy:0},players};
+ return {bumpCooldown:0,bumpCount:0,tick:0,remaining:180,phase:'ready',wait:0,score:[0,0],lastGoal:null,puck:{x:200,y:360,vx:0,vy:0},players};
 }
 export function serve(s:State){s.puck={x:200,y:360,vx:55,vy:s.lastGoal===0?140:-140};s.phase='playing';}
 export function goalCrossing(x0:number,y0:number,x1:number,y1:number):Team|null {
@@ -33,6 +33,14 @@ export function step(s:State,commands:Command[]){
  s.tick++;if(s.phase==='ready'||s.phase==='finished')return;
  if(s.phase==='goal'){if(--s.wait<=0)serve(s);return;}
  s.remaining=Math.max(0,s.remaining-DT);if(s.remaining<=0){s.phase='finished';return;}
+ s.bumpCooldown=Math.max(0,s.bumpCooldown-1);
+ if(commands.some(c=>c.bump) && s.bumpCooldown===0 && Math.hypot(s.puck.vx,s.puck.vy)<45){
+    // Nudge inward, with alternating sideways bias to escape rails and repeated traps.
+    const dx=200-s.puck.x,dy=360-s.puck.y;
+    const angle=(Math.hypot(dx,dy)>10?Math.atan2(dy,dx):-Math.PI/2)+(s.bumpCount%2===0?.4:-.4);
+    s.puck.vx=180*Math.cos(angle);s.puck.vy=180*Math.sin(angle);
+    s.bumpCount++;s.bumpCooldown=180;
+ }
  const motions=s.players.map(p=>{
  const c=commands.find(c=>c.team===p.team&&c.player===p.slot);
  const old=p.goalie?p.x:p.y;
