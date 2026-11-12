@@ -12,3 +12,9 @@ test('auto goalie removes goalie hover lane without changing manual mode',()=>{
  assert.equal(c.move(220,650,true),4);assert.equal(c.target,650);
  assert.equal(c.move(220,650,false),5);assert.equal(c.target,220);
 });
+
+test('deep defender hover remains selectable with manual goalie enabled',()=>{
+ assert.equal(hoverSlot(120,680,false),3);
+ assert.equal(hoverSlot(280,680,false),4);
+ assert.equal(hoverSlot(200,680,false),5);
+});

@@ -9,7 +9,7 @@ export interface State {bumpCooldown:number;bumpCount:number;tick:number;remaini
 const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n));
 export function createState():State {
  const players:Skater[]=[];
- const slots=[[48,220,80,350],[352,220,80,350],[200,255,150,350],[120,480,390,620],[280,480,390,620],[200,650,155,245]];
+ const slots=[[48,220,80,350],[352,220,80,350],[200,255,150,350],[120,480,390,680],[280,480,390,680],[200,650,155,245]];
  for(const team of [0,1] as Team[]) slots.forEach(([x,y,min,max],slot)=>players.push({team,slot,x:team?W-x:x,y:team?H-y:y,angle:team?Math.PI:0,min:team&&slot!==5?H-max:min,max:team&&slot!==5?H-min:max,goalie:slot===5}));
  return {bumpCooldown:0,bumpCount:0,tick:0,remaining:180,phase:'ready',wait:0,score:[0,0],lastGoal:null,puck:{x:200,y:360,vx:0,vy:0},players};
 }

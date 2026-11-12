@@ -47,3 +47,18 @@ test('bump cannot alter fast shots or inactive phases',()=>{
  s.phase='goal';s.wait=100;step(s,[bumpInput]);assert.equal(s.bumpCount,0);
  s.phase='finished';step(s,[bumpInput]);assert.equal(s.bumpCount,0);
 });
+
+test('both teams defenders reach end boards with their sticks',()=>{
+ for(const team of [0,1])for(const slot of [3,4]){
+  const s=createState();serve(s);const defender=s.players.find(p=>p.team===team&&p.slot===slot);
+  const end=team===0?680:40, wallY=team===0?698:22;
+  assert.equal(team===0?defender.max:defender.min,end);
+  defender.y=end;
+  defender.angle=Math.atan2(28,-(wallY-end))-.2;
+  s.players=[defender];s.puck={x:defender.x+28,y:wallY,vx:0,vy:0};
+  for(let i=0;i<5;i++)step(s,[{seq:i,tick:s.tick,team,player:slot,axis:team===0?1:-1,spin:1}]);
+  assert.equal(defender.y,end,'Movement must clamp to extended rail');
+  assert.ok(Math.hypot(s.puck.vx,s.puck.vy)>0,'Stick must dislodge a puck against the end board');
+  assert.ok(s.puck.y>=22 && s.puck.y<=698);
+ }
+});

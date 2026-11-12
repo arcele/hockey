@@ -2,7 +2,8 @@ import {DT} from './simulation.js';
 
 /** Legacy hover lanes; no click/drag required. Coordinates are rink units. */
 export function hoverSlot(x:number,y:number,autoGoalie=false):number {
-    if(y>=620 && !autoGoalie) return 5;
+    // Reserve only the central goalie lane; defenders can hover behind the goal.
+    if(y>=620 && x>=155 && x<=245 && !autoGoalie) return 5;
     if(y>=360) return x<200?3:4;
     if(x<124) return 0;
     if(x>276) return 1;

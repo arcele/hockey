@@ -96,3 +96,8 @@ simulation cooldown; the button shows the cooldown. It does not reset the score,
 clock, or positions. The action is part of the simulation command stream for replay
 and future server-side validation. Fast shots, pauses, faceoffs and full time
 cannot be bumped.
+
+Defense skaters (4 and 5) extend to y=680 behind the home goal line, mirrored
+to y=40 for the visitors. Their sticks can sweep pucks at the end boards while
+their bodies stay inside the rink. In manual goalie mode only the central bottom
+lane selects the goalie; the left and right lanes still select deep defenders.
