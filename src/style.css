@@ -14,3 +14,8 @@
 .auto-goalie input:checked+.toggle-track{background:#6b4935;border-color:#d49563}.auto-goalie input:checked+.toggle-track:after{transform:translateX(16px);background:#efb88e}
 .auto-goalie input:focus-visible+.toggle-track{outline:2px solid #eca16b;outline-offset:4px}
 .player-select button:disabled{opacity:.65;cursor:default}.player-select button:disabled b{font-size:10px;line-height:17px;color:#efb88e}
+
+.difficulty-setting{display:grid;grid-template-columns:1fr auto;align-items:center;gap:5px 12px;margin:16px 0;color:#d6e0e3;font-size:11px}
+.difficulty-setting select{font:inherit;background:#213440;color:#efb88e;border:1px solid #4a5d66;border-radius:4px;padding:7px 24px 7px 9px;cursor:pointer}
+.difficulty-setting select:focus-visible{outline:2px solid #eca16b;outline-offset:3px}
+.difficulty-setting small{grid-column:1/-1;font-size:9px;color:#8fa5b2}

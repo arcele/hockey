@@ -5,15 +5,16 @@ export const PUCK_FRICTION=160;
 export const ASSISTED_GOALIE_SPEED=60;
 export const GOALIE_REACTION_TICKS=36; // 300 ms at 120 Hz
 export type Team=0|1;
+export type Difficulty='novice'|'hard';
 export interface Command {seq:number;tick:number;team:Team;player:number;axis:number;spin:number;target?:number;bump?:boolean;assisted?:boolean}
 export interface Skater {team:Team;slot:number;x:number;y:number;angle:number;min:number;max:number;goalie:boolean}
-export interface State {goaliePuckHistory:number[];bumpCooldown:number;bumpCount:number;tick:number;remaining:number;phase:'ready'|'playing'|'goal'|'finished';wait:number;score:[number,number];lastGoal:Team|null;puck:{x:number;y:number;vx:number;vy:number};players:Skater[]}
+export interface State {difficulty:Difficulty;botSelected:number|null;botCommitTicks:number;goaliePuckHistory:number[];bumpCooldown:number;bumpCount:number;tick:number;remaining:number;phase:'ready'|'playing'|'goal'|'finished';wait:number;score:[number,number];lastGoal:Team|null;puck:{x:number;y:number;vx:number;vy:number};players:Skater[]}
 const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n));
-export function createState():State {
+export function createState(difficulty:Difficulty='hard'):State {
  const players:Skater[]=[];
  const slots=[[48,220,40,350],[352,220,40,350],[200,255,150,350],[120,480,390,680],[280,480,390,680],[200,650,155,245]];
  for(const team of [0,1] as Team[]) slots.forEach(([x,y,min,max],slot)=>players.push({team,slot,x:team?W-x:x,y:team?H-y:y,angle:team?Math.PI:0,min:team&&slot!==5?H-max:min,max:team&&slot!==5?H-min:max,goalie:slot===5}));
- return {goaliePuckHistory:Array(GOALIE_REACTION_TICKS).fill(200),bumpCooldown:0,bumpCount:0,tick:0,remaining:180,phase:'ready',wait:0,score:[0,0],lastGoal:null,puck:{x:200,y:360,vx:0,vy:0},players};
+ return {difficulty,botSelected:null,botCommitTicks:0,goaliePuckHistory:Array(GOALIE_REACTION_TICKS).fill(200),bumpCooldown:0,bumpCount:0,tick:0,remaining:180,phase:'ready',wait:0,score:[0,0],lastGoal:null,puck:{x:200,y:360,vx:0,vy:0},players};
 }
 export function serve(s:State){s.goaliePuckHistory=Array(GOALIE_REACTION_TICKS).fill(200);s.puck={x:200,y:360,vx:55,vy:s.lastGoal===0?140:-140};s.phase='playing';}
 export function goalCrossing(x0:number,y0:number,x1:number,y1:number):Team|null {
@@ -44,13 +45,18 @@ export function step(s:State,commands:Command[]){
     s.puck.vx=180*Math.cos(angle);s.puck.vy=180*Math.sin(angle);
     s.bumpCount++;s.bumpCooldown=180;
  }
+ if(s.difficulty==='novice'){
+    if(s.botCommitTicks<=0){s.botSelected=commands.find(c=>c.team===1)?.player??null;s.botCommitTicks=36;}
+    s.botCommitTicks--;
+ }
  const motions=s.players.map(p=>{
- const c=commands.find(c=>c.team===p.team&&c.player===p.slot);
+ const c=p.team===1&&s.difficulty==='novice'&&p.slot!==s.botSelected?undefined:commands.find(c=>c.team===p.team&&c.player===p.slot);
  const old=p.goalie?p.x:p.y;
- const speed=p.goalie&&c?.assisted?ASSISTED_GOALIE_SPEED:225;
+ const pace=p.team===1&&s.difficulty==='novice'?.75:1;
+ const speed=(p.goalie&&c?.assisted?ASSISTED_GOALIE_SPEED:225)*pace;
  const dest=c?.target===undefined?old+clamp(c?.axis??0,-1,1)*speed*DT:c.target;
  const next=clamp(old+clamp(dest-old,-speed*DT,speed*DT),p.min,p.max);
- return {p,old,delta:next-old,angle:p.angle,da:p.goalie?0:clamp(c?.spin??0,-1,1)*12*DT};
+ return {p,old,delta:next-old,angle:p.angle,da:p.goalie?0:clamp(c?.spin??0,-1,1)*12*DT*pace};
  });
  // Relative puck and rotating tip travel stays below one pixel per substep.
  const count=Math.ceil((520*DT+225*DT+12*DT*43)/.75),dt=DT/count;
@@ -72,7 +78,23 @@ export function step(s:State,commands:Command[]){
  if(nextSpeed===0){s.puck.vx=0;s.puck.vy=0;}
  else {const scale=nextSpeed/speed;s.puck.vx*=scale;s.puck.vy*=scale;}
 }
-export function botCommands(s:State):Command[]{return s.players.filter(p=>p.team===1).map(p=>p.goalie?autoGoalieCommand(s,1):({seq:s.tick,tick:s.tick,team:1,player:p.slot,axis:0,target:s.puck.y,spin:Math.hypot(p.x-s.puck.x,p.y-s.puck.y)<65?1:Math.sin(s.tick/100+p.slot)*.15}));}
+export function botCommands(s:State):Command[]{
+ let opponents=s.players.filter(p=>p.team===1);
+ if(s.difficulty==='novice'){
+    // Commit for 300 ms, then choose the player best positioned to reach the puck.
+    let active=s.botCommitTicks>0?opponents.find(p=>p.slot===s.botSelected):undefined;
+    if(!active){
+        const distance=(p:Skater)=>{
+            const x=p.goalie?clamp(s.puck.x,p.min,p.max):p.x;
+            const y=p.goalie?p.y:clamp(s.puck.y,p.min,p.max);
+            return Math.hypot(x-s.puck.x,y-s.puck.y)+.35*Math.hypot(p.x-s.puck.x,p.y-s.puck.y);
+        };
+        active=opponents.sort((a,b)=>distance(a)-distance(b)||a.slot-b.slot)[0];
+    }
+    opponents=active?[active]:[];
+ }
+ return opponents.map(p=>p.goalie?autoGoalieCommand(s,1):({seq:s.tick,tick:s.tick,team:1,player:p.slot,axis:0,target:s.puck.y,spin:Math.hypot(p.x-s.puck.x,p.y-s.puck.y)<65?1:Math.sin(s.tick/100+p.slot)*.15}));
+}
 
 /** Feed through the same movement limits and collision solver as human input. */
 export function autoGoalieCommand(s:State,team:Team):Command {

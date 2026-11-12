@@ -111,3 +111,14 @@ Desktop spin measures horizontal mouse velocity (distance / event elapsed time),
 with 20 ms smoothing and a 12 rad/s maximum. Slow movement gives gentle passes;
 quick flicks give harder shots. Spin fades out when mouse events stop, rather
 than playing back queued revolutions. Lane changes reset angular velocity.
+
+## Difficulty
+
+The controls panel offers Novice (default in the client) and Hard. Novice lets
+only one computer player move or spin at a time, including the goalie. Translation
+and spin are 25% slower; inactive players still block and deflect pucks. The bot
+commits to a selection for 300 ms before choosing another reachable player.
+Hard preserves full-team behavior and existing speeds. Both retain delayed goalie
+tracking. Difficulty can change mid-match without resetting the score, and is
+retained by New Match for the page session. The simulation records difficulty
+and AI selection state for repeatable replay.

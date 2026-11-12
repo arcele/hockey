@@ -106,3 +106,30 @@ test('faster stick rotation transfers more speed to a stationary puck',()=>{
  const slow=shot(.15),fast=shot(.6);
  assert.ok(slow>0);assert.ok(fast>slow*2,'Faster swing should produce a harder shot');
 });
+
+test('Novice moves and spins only one opponent at 75 percent speed',()=>{
+ const s=createState('novice');serve(s);s.puck={x:200,y:360,vx:0,vy:0};
+ const before=structuredClone(s.players);
+ const commands=s.players.filter(p=>p.team===1).map(p=>({seq:0,tick:0,team:1,player:p.slot,axis:1,spin:1}));
+ step(s,commands);
+ const moved=s.players.filter((p,i)=>p.team===1&&(p.x!==before[i].x||p.y!==before[i].y||p.angle!==before[i].angle));
+ assert.equal(moved.length,1);const p=moved[0],old=before.find(q=>q.team===1&&q.slot===p.slot);
+ assert.ok(Math.abs(p.y-old.y-225*.75*DT)<1e-8);
+ assert.ok(Math.abs(p.angle-old.angle-12*.75*DT)<1e-8);
+});
+test('Novice bot commits to one player including goalie; Hard controls full team',()=>{
+ const s=createState('novice');serve(s);s.puck={x:100,y:450,vx:0,vy:0};
+ const first=botCommands(s);assert.equal(first.length,1);step(s,first);
+ s.puck={x:200,y:80,vx:0,vy:0};
+ for(let i=0;i<35;i++){const c=botCommands(s);assert.equal(c.length,1);assert.equal(c[0].player,first[0].player);step(s,c);}
+ assert.equal(botCommands(s)[0].player,5,'Can switch to goalie after commitment');
+ s.difficulty='hard';assert.equal(botCommands(s).length,6);
+});
+test('Hard keeps normal opponent speed and concurrent movement',()=>{
+ const s=createState('hard');serve(s);const before=structuredClone(s.players);
+ step(s,s.players.filter(p=>p.team===1&&!p.goalie).map(p=>({seq:0,tick:0,team:1,player:p.slot,axis:1,spin:1})));
+ for(const p of s.players.filter(p=>p.team===1&&!p.goalie)){
+  const old=before.find(q=>q.team===1&&q.slot===p.slot);
+  assert.ok(Math.abs(p.y-old.y-225*DT)<1e-8);
+ }
+});
