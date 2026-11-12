@@ -106,3 +106,8 @@ lane selects the goalie; the left and right lanes still select deep defenders.
 
 Wing forwards (1 and 2) extend to y=40 at the attacking end, mirrored to y=680
 for the visitors, allowing their sticks to sweep pucks from the rounded corners.
+
+Desktop spin measures horizontal mouse velocity (distance / event elapsed time),
+with 20 ms smoothing and a 12 rad/s maximum. Slow movement gives gentle passes;
+quick flicks give harder shots. Spin fades out when mouse events stop, rather
+than playing back queued revolutions. Lane changes reset angular velocity.

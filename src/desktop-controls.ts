@@ -1,5 +1,3 @@
-import {DT} from './simulation.js';
-
 /** Legacy hover lanes; no click/drag required. Coordinates are rink units. */
 export function hoverSlot(x:number,y:number,autoGoalie=false):number {
     // Reserve only the central goalie lane; defenders can hover behind the goal.
@@ -12,27 +10,32 @@ export function hoverSlot(x:number,y:number,autoGoalie=false):number {
 
 export class DesktopControls {
     private lastX:number|undefined;
-    private rotation=0;
+    private lastTime:number|undefined;
+    private velocity=0;
     private slot:number|undefined;
     target:number|undefined;
 
-    clear(){this.lastX=undefined;this.rotation=0;this.slot=undefined;this.target=undefined;}
-    move(x:number,y:number,autoGoalie=false){
+    clear(){this.lastX=undefined;this.lastTime=undefined;this.velocity=0;this.slot=undefined;this.target=undefined;}
+    move(x:number,y:number,autoGoalie=false,time=performance.now()){
         const slot=hoverSlot(x,y,autoGoalie);
-        // Crossing a selector lane starts a fresh swing, not an impulse on the new player.
-        if(this.slot!==slot){this.rotation=0;this.lastX=x;}
-        const dx=x-(this.lastX??x);
-        if(Math.abs(dx)>1.5){
-            this.rotation=Math.max(-Math.PI*2,Math.min(Math.PI*2,this.rotation+dx*.06));
-            this.lastX=x;
+        const elapsed=time-(this.lastTime??time);
+        if(this.slot!==slot || elapsed>120 || elapsed<0){this.velocity=0;}
+        else if(elapsed>0){
+            // Rink units per second -> angular velocity. Time-based smoothing
+            // reduces event-rate noise without queuing rotations after a flick.
+            const speed=(x-(this.lastX??x))*1000/Math.max(1,elapsed);
+            const alpha=1-Math.exp(-elapsed/20);
+            this.velocity+=(Math.max(-12,Math.min(12,speed*.04))-this.velocity)*alpha;
         }
-        this.slot=slot;
+        this.lastX=x;this.lastTime=time;this.slot=slot;
         this.target=slot===5?x:y;
         return slot;
     }
-    consumeSpin(){
-        const angle=Math.max(-12*DT,Math.min(12*DT,this.rotation));
-        this.rotation-=angle;
-        return angle/(12*DT);
+    consumeSpin(time=performance.now()){
+        if(this.lastTime===undefined)return 0;
+        const age=Math.max(0,time-this.lastTime);
+        if(age>=160)return 0;
+        // No events arrive once the mouse stops: fade the last measured speed.
+        return this.velocity/12*Math.exp(-Math.max(0,age-25)/20);
     }
 }

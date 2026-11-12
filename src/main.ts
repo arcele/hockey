@@ -63,7 +63,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){clear();if
 function point(e:PointerEvent){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H};}
 function mouseMove(e:PointerEvent){
     if(paused||state.phase!=='playing'){desktop.clear();mouseActive=false;return;}
-    const q=point(e),slot=desktop.move(q.x,q.y,autoGoalie);
+    const q=point(e),slot=desktop.move(q.x,q.y,autoGoalie,e.timeStamp);
     if(slot!==selected)select(slot);
     target=desktop.target;mouseActive=true;
 }
@@ -81,5 +81,5 @@ for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.add
     if((e as PointerEvent).pointerType==='mouse'&&event==='pointerup')return;
     dragging=null;target=undefined;desktop.clear();mouseActive=false;
 });
-function frame(now:number){acc+=Math.min((now-last)/1000,.1);last=now;while(acc>=DT){if(!paused){const command:Command={seq:seq++,tick:state.tick,team:0,player:selected,axis:Number(held.has('down'))-Number(held.has('up')),spin:Math.max(-1,Math.min(1,Number(held.has('right'))-Number(held.has('left'))+(mouseActive?desktop.consumeSpin():0))),target,bump:bumpPending};bumpPending=false;step(state,[command,...(autoGoalie?[autoGoalieCommand(state,0)]:[]),...botCommands(state)]);}acc-=DT;}render(ctx,state,selected);sync();requestAnimationFrame(frame);}
+function frame(now:number){acc+=Math.min((now-last)/1000,.1);last=now;while(acc>=DT){if(!paused){const command:Command={seq:seq++,tick:state.tick,team:0,player:selected,axis:Number(held.has('down'))-Number(held.has('up')),spin:Math.max(-1,Math.min(1,Number(held.has('right'))-Number(held.has('left'))+(mouseActive?desktop.consumeSpin(now):0))),target,bump:bumpPending};bumpPending=false;step(state,[command,...(autoGoalie?[autoGoalieCommand(state,0)]:[]),...botCommands(state)]);}acc-=DT;}render(ctx,state,selected);sync();requestAnimationFrame(frame);}
 select(2);sync();requestAnimationFrame(now=>{last=now;requestAnimationFrame(frame);});

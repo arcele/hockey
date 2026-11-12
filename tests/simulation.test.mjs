@@ -95,3 +95,14 @@ test('both teams wing forwards can sweep pucks off the attacking corner boards',
   assert.ok(Math.hypot(s.puck.x-cx,s.puck.y-cy)<=36.01);
  }
 });
+
+test('faster stick rotation transfers more speed to a stationary puck',()=>{
+ function shot(spin){
+  const s=createState();serve(s);s.players=[{team:0,slot:0,x:200,y:300,angle:-.25,min:300,max:300,goalie:false}];
+  s.puck={x:200,y:270,vx:0,vy:0};let peak=0;
+  for(let i=0;i<60;i++){step(s,[{seq:i,tick:s.tick,team:0,player:0,axis:0,spin}]);peak=Math.max(peak,Math.hypot(s.puck.vx,s.puck.vy));}
+  return peak;
+ }
+ const slow=shot(.15),fast=shot(.6);
+ assert.ok(slow>0);assert.ok(fast>slow*2,'Faster swing should produce a harder shot');
+});
