@@ -67,3 +67,12 @@ Fonts use Google Fonts with system fallbacks; gameplay works without that reques
 Checks cover goal rules, one-shot scoring, faceoffs, command bounds, deterministic
 replay, wall/corner containment, body/stick rebounds, both swing directions and
 match expiry. `npm run build` also type-checks all browser code.
+
+## Puck surface feel
+
+The puck uses constant tabletop sliding friction (`PUCK_FRICTION = 160` rink
+units/s²), replacing the original gentle exponential ice drag. An unobstructed
+150-unit/s puck stops in about 0.94 seconds; a maximum-power 520-unit/s shot
+stops in about 3.25 seconds before accounting for collision energy losses.
+Friction preserves heading and clamps at rest, so slow pucks do not creep or
+reverse. Adjust the exported constant in `src/simulation.ts` to tune surface feel.

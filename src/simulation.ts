@@ -1,5 +1,7 @@
 /** Portable simulation: no DOM, wall clock, randomness, rendering, or network I/O. */
 export const DT=1/120, W=400, H=720, PUCK_RADIUS=6;
+// Tabletop sliding friction: rink units / second²; stops rather than coasting forever.
+export const PUCK_FRICTION=160;
 export type Team=0|1;
 export interface Command {seq:number;tick:number;team:Team;player:number;axis:number;spin:number;target?:number}
 export interface Skater {team:Team;slot:number;x:number;y:number;angle:number;min:number;max:number;goalie:boolean}
@@ -53,6 +55,9 @@ export function step(s:State,commands:Command[]){
  });boards(p);}
  }
  s.players.forEach(p=>p.angle=((p.angle%(2*Math.PI))+2*Math.PI)%(2*Math.PI));
- const drag=Math.exp(-.32*DT);s.puck.vx*=drag;s.puck.vy*=drag;
+ const speed=Math.hypot(s.puck.vx,s.puck.vy);
+ const nextSpeed=Math.max(0,speed-PUCK_FRICTION*DT);
+ if(nextSpeed===0){s.puck.vx=0;s.puck.vy=0;}
+ else {const scale=nextSpeed/speed;s.puck.vx*=scale;s.puck.vy*=scale;}
 }
 export function botCommands(s:State):Command[]{return s.players.filter(p=>p.team===1).map(p=>({seq:s.tick,tick:s.tick,team:1,player:p.slot,axis:0,target:p.goalie?clamp(s.puck.x,155,245):s.puck.y,spin:p.goalie?0:(Math.hypot(p.x-s.puck.x,p.y-s.puck.y)<65?1:Math.sin(s.tick/100+p.slot)*.15)}));}
