@@ -76,3 +76,13 @@ units/s²), replacing the original gentle exponential ice drag. An unobstructed
 stops in about 3.25 seconds before accounting for collision energy losses.
 Friction preserves heading and clamps at rest, so slow pucks do not creep or
 reverse. Adjust the exported constant in `src/simulation.ts` to tune surface feel.
+
+## Auto goalie
+
+Auto goalie is on by default. Toggle it in the controls panel to switch between
+puck-tracking goalie assistance and manual control. While enabled, the goalie
+is excluded from mouse, touch, keyboard, and button selection; the bottom hover
+area continues to select defense skaters. The goalie uses the same rail limits,
+movement speed, and collision rules as manual input. Switching on while controlling
+the goalie returns selection to center. The choice survives New Match within the
+page session; reloading restores the default.

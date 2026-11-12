@@ -61,3 +61,8 @@ export function step(s:State,commands:Command[]){
  else {const scale=nextSpeed/speed;s.puck.vx*=scale;s.puck.vy*=scale;}
 }
 export function botCommands(s:State):Command[]{return s.players.filter(p=>p.team===1).map(p=>({seq:s.tick,tick:s.tick,team:1,player:p.slot,axis:0,target:p.goalie?clamp(s.puck.x,155,245):s.puck.y,spin:p.goalie?0:(Math.hypot(p.x-s.puck.x,p.y-s.puck.y)<65?1:Math.sin(s.tick/100+p.slot)*.15)}));}
+
+/** Feed through the same movement limits and collision solver as human input. */
+export function autoGoalieCommand(s:State,team:Team):Command {
+ return {seq:s.tick,tick:s.tick,team,player:5,axis:0,spin:0,target:s.puck.x};
+}
