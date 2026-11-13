@@ -1,4 +1,5 @@
 import './style.css';
+import {GameHistory,LocalGameRepository,browserUuid,type StoragePort} from './game-history.js';
 import {DesktopControls} from './desktop-controls.js';
 import {createState,step,serve,botCommands,autoGoalieCommand,DT,W,H,type Command,type Difficulty} from './simulation.js';
 import {render} from './render.js';
@@ -7,7 +8,7 @@ app.innerHTML=`<header><a class="brand" href="./"><span class="brand-icon">N<spa
 <main><section class="arena"><div class="arena-label"><span><i></i> NORTHWEST ARENA</span><span>HOME ICE / 01</span></div><div class="table"><canvas tabindex="0" aria-label="Bubble hockey rink. Hover a lane to select a player, move vertically to slide and horizontally to spin. Keyboard: 1 through 6, arrows, A and D. Use the touch controls below on mobile."></canvas><div class="overlay" id="overlay"><span class="eyebrow">WELCOME TO THE FEDERATION</span><h1>Small rink.<br>Big rivalry.</h1><p>All the spin. All the ricochets.<br>Your favorite tabletop game, back on ice.</p><button id="start" class="primary">DROP THE PUCK <span>↗</span></button><small>YOU PLAY ORANGE · RED IS THE PRACTICE BOT</small></div></div><div class="rink-caption"><span>● ORANGE ATTACKS ↑</span><span>120 HZ · PRECISION ICE</span></div></section>
 <aside><div class="intro"><span class="eyebrow">EST. IN THE PACIFIC NORTHWEST</span><h2>A little spin.<br>A lot of hockey.</h2><p>Pull the rod. Wind up. Find the gap.</p></div><section class="scoreboard" aria-label="Match scoreboard"><div class="board-top">NWBHF <span>● LIVE FROM THE TABLE</span></div><div class="scores"><div><h3>HOME <i class="orange"></i></h3><output id="home">00</output><small>NORTHWEST</small></div><span class="separator">:</span><div><h3>AWAY <i class="red"></i></h3><output id="away">00</output><small>VISITORS</small></div></div><div class="clock-row"><span>EXHIBITION<br><b>3 MIN MATCH</b></span><output id="clock">3:00</output><span>PERIOD<br><b>01</b></span></div><div id="status" role="status">READY FOR FACEOFF</div></section>
 <div class="match-actions"><button id="pause" disabled>Ⅱ PAUSE</button><button id="bump" disabled title="Nudge a stuck puck (B)">↟ BUMP</button><button id="reset">↺ NEW MATCH</button></div>
-<section class="controls"><div class="section-title">YOUR SIDE OF THE TABLE <span>HOW TO PLAY</span></div><div class="difficulty-setting"><label for="difficulty">Opponent difficulty</label><select id="difficulty"><option value="novice" selected>Novice</option><option value="hard">Hard</option></select><small id="difficulty-help">One player at a time · 25% slower</small></div><label class="auto-goalie"><span>Auto goalie<small>Let your goalie follow the puck</small></span><input id="auto-goalie" type="checkbox" checked><span class="toggle-track" aria-hidden="true"></span></label><div class="player-select" aria-label="Select player">${['LW','RW','C','LD','RD','G'].map((s,i)=>`<button data-player="${i}" aria-pressed="${i===2}"><b>${i+1}</b>${s}</button>`).join('')}</div><div class="touch-controls"><div class="move-pad"><button data-hold="up" aria-label="Move up">↑</button><span>SLIDE</span><button data-hold="down" aria-label="Move down">↓</button></div><div class="spin-pad"><button data-hold="left" aria-label="Spin counterclockwise">↶</button><span>SPIN</span><button data-hold="right" aria-label="Spin clockwise">↷</button></div></div><p class="instructions"><kbd>1–6</kbd> select a player <kbd>↑ ↓</kbd> slide<br><kbd>A D</kbd> spin your stick <kbd>Space</kbd> pause <kbd>B</kbd> bump</p><p class="mouse-tip"><span class="desktop-tip">Hover a lane to select. Move up/down to slide, left/right to spin. No clicking needed.</span><span class="mobile-tip">Drag a player to slide. Use the spin buttons with your other hand.</span></p></section><div class="footnote"><span class="seal">NW</span><p>Made for good rivalries.<br><span>One player + practice bot · Local play</span></p></div></aside></main><footer><span>NORTHWEST BUBBLE HOCKEY FEDERATION</span><span>LESS SCROLL. MORE SPIN.</span></footer>`;
+<section class="controls"><div class="section-title">YOUR SIDE OF THE TABLE <span>HOW TO PLAY</span></div><div class="difficulty-setting"><label for="difficulty">Opponent difficulty</label><select id="difficulty"><option value="novice" selected>Novice</option><option value="hard">Hard</option></select><small id="difficulty-help">One player at a time · 25% slower</small></div><label class="auto-goalie"><span>Auto goalie<small>Let your goalie follow the puck</small></span><input id="auto-goalie" type="checkbox" checked><span class="toggle-track" aria-hidden="true"></span></label><div class="player-select" aria-label="Select player">${['LW','RW','C','LD','RD','G'].map((s,i)=>`<button data-player="${i}" aria-pressed="${i===2}"><b>${i+1}</b>${s}</button>`).join('')}</div><div class="touch-controls"><div class="move-pad"><button data-hold="up" aria-label="Move up">↑</button><span>SLIDE</span><button data-hold="down" aria-label="Move down">↓</button></div><div class="spin-pad"><button data-hold="left" aria-label="Spin counterclockwise">↶</button><span>SPIN</span><button data-hold="right" aria-label="Spin clockwise">↷</button></div></div><p class="instructions"><kbd>1–6</kbd> select a player <kbd>↑ ↓</kbd> slide<br><kbd>A D</kbd> spin your stick <kbd>Space</kbd> pause <kbd>B</kbd> bump</p><p class="mouse-tip"><span class="desktop-tip">Hover a lane to select. Move up/down to slide, left/right to spin. No clicking needed.</span><span class="mobile-tip">Drag a player to slide. Use the spin buttons with your other hand.</span></p></section><section class="history-panel"><details><summary>GAME HISTORY <span id="history-count">0 games</span></summary><p id="history-empty">Your played matches will appear here.</p><ol id="history-list"></ol></details><p id="history-warning" role="status" hidden>Browser storage is unavailable or full. Recent results are kept only for this page session.</p></section><div class="footnote"><span class="seal">NW</span><p>Made for good rivalries.<br><span>One player + practice bot · Local play</span></p></div></aside></main><footer><span>NORTHWEST BUBBLE HOCKEY FEDERATION</span><span>LESS SCROLL. MORE SPIN.</span></footer>`;
 const canvas=document.querySelector('canvas')!,ctx=canvas.getContext('2d')!;
 let state=createState('novice'),selected=2,paused=false,seq=0,target:number|undefined,dragging:number|null=null,last=0,acc=0,lastUI='';
 const held=new Set<string>();
@@ -15,12 +16,34 @@ const desktop=new DesktopControls();
 let mouseActive=false;
 let autoGoalie=true;
 let bumpPending=false;
+let storage:StoragePort|null=null;
+try{storage=window.localStorage;}catch{/* Keep gameplay available without persistence. */}
+const repository=new LocalGameRepository(storage,browserUuid,()=>{document.querySelector<HTMLElement>('#history-warning')!.hidden=false;});
+function renderHistory(){
+ const games=repository.list(),list=document.querySelector('#history-list')!;
+ list.replaceChildren();document.querySelector('#history-count')!.textContent=`${games.length} ${games.length===1?'game':'games'}`;
+ document.querySelector<HTMLElement>('#history-empty')!.hidden=games.length>0;
+ for(const game of games){
+  const item=document.createElement('li'),score=document.createElement('strong'),meta=document.createElement('span');
+  score.textContent=`${game.score.home} – ${game.score.away} · ${game.result??game.status.replace('_',' ')}`;
+  meta.textContent=`${new Date(game.startedAt).toLocaleString()} · ${game.difficulty} · ${Math.round(game.playedSeconds)}s played`;
+  item.append(score,meta);list.append(item);
+ }
+}
+const history=new GameHistory(repository,browserUuid,()=>new Date().toISOString(),renderHistory);
+renderHistory();
+window.setInterval(()=>history.checkpoint(state,paused,autoGoalie),15_000);
+window.addEventListener('pagehide',()=>history.checkpoint(state,paused,autoGoalie,'interrupted'));
+window.addEventListener('pageshow',()=>history.checkpoint(state,paused,autoGoalie));
+window.addEventListener('storage',event=>{if(event.key?.startsWith('nwbhf:v1:game:'))renderHistory();});
+
 function resize(){const dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(canvas.clientWidth*dpr);canvas.height=Math.round(canvas.clientWidth*H/W*dpr);render(ctx,state,selected);}
 new ResizeObserver(resize).observe(canvas);
 function select(n:number){if(autoGoalie && n===5)return;selected=n;target=undefined;document.querySelectorAll<HTMLButtonElement>('[data-player]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.player)===n)));}
 function clear(){bumpPending=false;held.clear();target=undefined;dragging=null;desktop.clear();mouseActive=false;}
 function pause(){if(state.phase==='ready'||state.phase==='finished')return;paused=!paused;clear();sync();}
 function sync(){
+ history.observe(state,paused,autoGoalie);
  const clock=`${Math.floor(Math.ceil(state.remaining)/60)}:${String(Math.ceil(state.remaining)%60).padStart(2,'0')}`;
  const status=paused?'PLAY PAUSED':state.phase==='goal'?`${state.lastGoal===0?'HOME':'AWAY'} GOAL · FACEOFF`:state.phase==='finished'?(state.score[0]===state.score[1]?'FULL TIME · TIE GAME':`${state.score[0]>state.score[1]?'HOME':'AWAY'} WINS · FULL TIME`):state.phase==='ready'?'READY FOR FACEOFF':'EXHIBITION · IN PLAY';
  const bumpButton=document.querySelector<HTMLButtonElement>('#bump')!;
@@ -34,8 +57,8 @@ function sync(){
  const overlay=document.querySelector<HTMLDivElement>('#overlay')!;overlay.hidden=state.phase!=='ready'&&!paused&&state.phase!=='finished';
  if(state.phase!=='ready'){overlay.innerHTML=`<span class="eyebrow">NORTHWEST ARENA</span><h1>${paused?'Take a breather.':'That’s hockey.'}</h1><p>${paused?'Your table will be right here.':status}</p><button class="primary" id="continue">${paused?'BACK TO THE ICE':'PLAY AGAIN'} ↗</button>`;document.querySelector('#continue')?.addEventListener('click',()=>paused?pause():reset(true));}
 }
-function reset(start=false){state=createState(state.difficulty);paused=false;clear();if(start)serve(state);lastUI='';if(!start){reset(true);return;}sync();}
-document.querySelector('#start')!.addEventListener('click',()=>{serve(state);sync();canvas.focus();});
+function reset(start=false){history.checkpoint(state,paused,autoGoalie,'abandoned');state=createState(state.difficulty);paused=false;clear();serve(state);history.begin(state,autoGoalie);lastUI='';sync();}
+document.querySelector('#start')!.addEventListener('click',()=>{serve(state);history.begin(state,autoGoalie);sync();canvas.focus();});
 document.querySelector<HTMLSelectElement>('#difficulty')!.addEventListener('change',e=>{
     state.difficulty=(e.currentTarget as HTMLSelectElement).value as Difficulty;
     state.botSelected=null;state.botCommitTicks=0;
@@ -64,7 +87,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-hold]').forEach(b=>{b.addEve
 const keyMap:Record<string,string>={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'up',ArrowRight:'down',a:'left',d:'right'};
 window.addEventListener('keydown',e=>{if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement)return;if(e.target instanceof HTMLButtonElement&&[' ','Enter'].includes(e.key))return;if(keyMap[e.key]){e.preventDefault();held.add(keyMap[e.key]);target=undefined;desktop.clear();mouseActive=false;}if(e.code==='KeyB'&&!e.repeat){e.preventDefault();requestBump();}if(e.code==='Space'){e.preventDefault();if(!e.repeat)pause();}if(/^[1-6]$/.test(e.key)){desktop.clear();mouseActive=false;select(Number(e.key)-1);}});
 window.addEventListener('keyup',e=>held.delete(keyMap[e.key]));window.addEventListener('blur',()=>{clear();if(!paused&&state.phase==='playing')pause();});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){clear();if(!paused&&state.phase==='playing')pause();}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){clear();if(!paused&&state.phase==='playing')pause();history.checkpoint(state,paused,autoGoalie);}});
 function point(e:PointerEvent){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H};}
 function mouseMove(e:PointerEvent){
     if(paused||state.phase!=='playing'){desktop.clear();mouseActive=false;return;}

@@ -122,3 +122,35 @@ Hard preserves full-team behavior and existing speeds. Both retain delayed goali
 tracking. Difficulty can change mid-match without resetting the score, and is
 retained by New Match for the page session. The simulation records difficulty
 and AI selection state for repeatable replay.
+
+## Local game history
+
+Every started match receives a UUID; merely opening the welcome screen does not
+count as playing. A UUID v4 browser identity is stored at `nwbhf:v1:browser`.
+Each match is a separate `nwbhf:v1:game:<gameId>` localStorage entry, upserted on
+start, every 15 seconds of wall time (including while paused), goals, pause/resume,
+settings changes, completion, restart, and page lifecycle events. History is shown
+in the collapsible Game History panel. Other tabs' records are retained without
+sharing an index. IDs are per browser profile and origin, not accounts or a
+cross-device identity; clearing site data removes them.
+
+Records use schema version 1 and contain game/browser IDs, start/update/end ISO
+UTC timestamps, home/away score, remaining/played game seconds, initial and current
+difficulty/auto-goalie settings, status and result. Status is in_progress, paused,
+completed, abandoned (New Match before full time), or interrupted (page exit).
+Only completed matches receive win/loss/draw, from the human home team's view.
+Completion cannot be overwritten by later exit/restart events. Back-forward cache
+return resumes the same record. History does not restore a match simulation.
+
+A crash or force-close may prevent an exit callback: the last checkpoint remains
+with its last known status and timestamp, losing at most roughly 15 seconds during
+normal active-tab operation. Background timers can be throttled, so hiding the page
+also saves immediately. Storage denied/full errors show a warning and retain
+session-memory records without stopping play. Malformed entries are skipped and
+preserved rather than wiping unrelated history. No automatic history pruning.
+
+`src/game-history.ts` separates lifecycle tracking from a GameRepository port.
+A future backend can upsert by gameId and group/count by browserId, sending the
+versioned records with retries and idempotency. Nothing is transmitted now. A
+browser UUID and client-reported scores are analytics identifiers/data, not trusted
+identity or anti-cheat; a server should validate input and own competitive results.
